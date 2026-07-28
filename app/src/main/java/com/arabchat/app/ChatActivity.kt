@@ -98,6 +98,15 @@ class ChatActivity : AppCompatActivity() {
         )
         rvMessages.adapter = adapter
 
+        // Keep last messages visible when keyboard opens/closes
+        rvMessages.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+            if (bottom < oldBottom && adapter.itemCount > 0) {
+                rvMessages.post {
+                    rvMessages.scrollToPosition(adapter.itemCount - 1)
+                }
+            }
+        }
+
         tvBack.setOnClickListener { finish() }
         tvSend.setOnClickListener { sendTextMessage() }
 
