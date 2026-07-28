@@ -58,7 +58,7 @@ class ChatListAdapter(
                         .addOnSuccessListener { snap ->
                             val url = snap.getString("avatarUrl")
                             avatarCache[otherUid] = url
-                            val pos = holder.bindingAdapterPosition
+                            val pos = holder.adapterPosition
                             if (pos != RecyclerView.NO_POSITION && chats.getOrNull(pos)?.id == chat.id) {
                                 bindAvatar(holder, url)
                             } else {

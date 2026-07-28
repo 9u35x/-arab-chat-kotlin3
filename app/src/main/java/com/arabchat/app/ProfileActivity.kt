@@ -103,12 +103,14 @@ class ProfileActivity : AppCompatActivity() {
                     tvProfileName.text = display
                     tvProfileAvatar.text = if (display.isNotEmpty()) display.take(1).uppercase() else "?"
                     val parts = mutableListOf<String>()
-                    if (!profile?.username.isNullOrBlank()) parts.add("@${profile?.username}")
+                    val uname = profile?.username.orEmpty()
+                    if (uname.isNotBlank()) parts.add("@$uname")
                     when (profile?.gender) {
                         "male" -> parts.add(getString(R.string.gender_male))
                         "female" -> parts.add(getString(R.string.gender_female))
                     }
-                    if (!profile?.bio.isNullOrBlank()) parts.add(profile!!.bio)
+                    val bio = profile?.bio.orEmpty()
+                    if (bio.isNotBlank()) parts.add(bio)
                     tvProfileSubtitle.text = parts.joinToString(" · ")
                     showAvatar(profile?.avatarUrl)
                 }

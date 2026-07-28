@@ -125,12 +125,15 @@ class ChatActivity : AppCompatActivity() {
             chatType = doc.getString("type") ?: "direct"
             val participants = (doc.get("participants") as? List<*>)?.map { it.toString() } ?: emptyList()
             val admins = (doc.get("admins") as? List<*>)?.map { it.toString() } ?: emptyList()
-            isMember = uid in participants
-            isAdmin = uid in admins || (chatType != "channel" && true)
+            val myUid = currentUser.uid
+            isMember = myUid in participants
+            isAdmin = myUid in admins
             if (chatType == "channel") {
-                isAdmin = uid in admins || participants.firstOrNull() == uid
+                isAdmin = myUid in admins || participants.firstOrNull() == myUid
+            } else {
+                isAdmin = true
             }
-            otherUserId = participants.firstOrNull { it != uid }
+            otherUserId = participants.firstOrNull { it != myUid }
             applyChannelPermissions()
         }
 
