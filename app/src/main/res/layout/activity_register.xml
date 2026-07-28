@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bgBase"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="32dp">
+
+        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:text="@string/register_title"
+            android:textColor="@color/textPrimaryDark"
+            android:textSize="24sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/username_hint"
+            android:textColor="@color/textPrimaryDark"
+            android:textColorHint="@color/textTertiaryDark"
+            android:inputType="text"
+            android:singleLine="true"
+            android:textCursorDrawable="@null" />
+
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/email_hint"
+            android:textColor="@color/textPrimaryDark"
+            android:textColorHint="@color/textTertiaryDark"
+            android:inputType="textEmailAddress"
+            android:singleLine="true"
+            android:textCursorDrawable="@null" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/password_hint"
+            android:textColor="@color/textPrimaryDark"
+            android:textColorHint="@color/textTertiaryDark"
+            android:inputType="textPassword"
+            android:singleLine="true"
+            android:textCursorDrawable="@null" />
+
+        <EditText
+            android:id="@+id/etConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/confirm_password_hint"
+            android:textColor="@color/textPrimaryDark"
+            android:textColorHint="@color/textTertiaryDark"
+            android:inputType="textPassword"
+            android:singleLine="true"
+            android:textCursorDrawable="@null" />
+
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:background="@drawable/bg_gradient_button"
+            android:text="@string/register_button"
+            android:textColor="@color/textOnAccent"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginTop="20dp"
+            android:indeterminateTint="@color/colorAccent"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvGoLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/have_account_text"
+            android:textColor="@color/textSecondaryDark"
+            android:textSize="14sp"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="8dp" />
+
+        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+
+    </LinearLayout>
+</ScrollView>

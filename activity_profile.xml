@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bgBase"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/amoledBlack"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
+
+            <TextView
+                android:id="@+id/tvBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="←"
+                android:textColor="@color/colorAccent"
+                android:textSize="20sp"
+                android:paddingEnd="14dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/tvProfileTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/profile_title"
+                android:textColor="@color/textPrimaryDark"
+                android:textSize="17sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingStart="28dp"
+            android:paddingEnd="28dp"
+            android:paddingTop="40dp"
+            android:paddingBottom="32dp">
+
+            <FrameLayout
+                android:layout_width="110dp"
+                android:layout_height="110dp">
+
+                <ImageView
+                    android:id="@+id/ivProfileAvatar"
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:background="@drawable/bg_avatar_circle"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone"
+                    android:contentDescription="@string/profile_title" />
+
+                <TextView
+                    android:id="@+id/tvProfileAvatar"
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:background="@drawable/bg_avatar_circle"
+                    android:gravity="center"
+                    android:textColor="@color/textOnAccent"
+                    android:textSize="40sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvChangePhoto"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="bottom|end"
+                    android:background="@drawable/bg_avatar_circle"
+                    android:backgroundTint="@color/surfaceElevated2"
+                    android:gravity="center"
+                    android:text="📷"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+            </FrameLayout>
+
+            <ProgressBar
+                android:id="@+id/progressPhoto"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginTop="10dp"
+                android:indeterminateTint="@color/colorAccent"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvProfileName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:textColor="@color/textPrimaryDark"
+                android:textSize="20sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etProfileName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_input_field"
+                android:hint="@string/username_hint"
+                android:textColor="@color/textPrimaryDark"
+                android:textColorHint="@color/textTertiaryDark"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:singleLine="true"
+                android:visibility="gone"
+                android:textCursorDrawable="@null" />
+
+            <TextView
+                android:id="@+id/tvProfileSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/textSecondaryDark"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvSaveProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:background="@drawable/bg_gradient_button"
+                android:text="@string/save_changes"
+                android:textColor="@color/textOnAccent"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                android:visibility="gone"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <ProgressBar
+                android:id="@+id/progressSave"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginTop="16dp"
+                android:indeterminateTint="@color/colorAccent"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvLogoutProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_input_field"
+                android:text="@string/logout"
+                android:textColor="@color/errorRed"
+                android:textSize="15sp"
+                android:gravity="center"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"
+                android:visibility="gone"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

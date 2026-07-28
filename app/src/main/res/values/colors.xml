@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#7C3AED</color>
+    <color name="colorPrimaryDark">#5B21B6</color>
+    <color name="colorAccent">#B983FF</color>
+    <color name="colorAccentLight">#D9BFFF</color>
+
+    <color name="amoledBlack">#000000</color>
+    <color name="bgBase">#08060C</color>
+    <color name="surfaceElevated">#141019</color>
+    <color name="surfaceElevated2">#1D1726</color>
+    <color name="glassStroke">#26B983FF</color>
+
+    <color name="gradientPurpleStart">#7C3AED</color>
+    <color name="gradientPurpleMid">#9D5CFF</color>
+    <color name="gradientPurpleEnd">#C77DFF</color>
+
+    <color name="textPrimaryDark">#F5F2FA</color>
+    <color name="textSecondaryDark">#B8ADC9</color>
+    <color name="textTertiaryDark">#746A88</color>
+    <color name="textOnAccent">#FFFFFF</color>
+
+    <color name="errorRed">#FF5C7A</color>
+</resources>

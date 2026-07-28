@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="start"
+    android:paddingStart="12dp"
+    android:paddingEnd="60dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_bubble_received"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:id="@+id/tvSenderName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorAccentLight"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivMessageImage"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvTemporaryOverlay"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="👁 صورة مؤقتة - اضغط للمشاهدة"
+            android:textColor="@color/textPrimaryDark"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/llVoiceRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="2dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvPlayVoice"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@drawable/bg_avatar_circle"
+                android:gravity="center"
+                android:text="▶"
+                android:textColor="@color/textOnAccent"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tvVoiceDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:textColor="@color/textSecondaryDark"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvMessageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/textPrimaryDark"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvMessageTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/textTertiaryDark"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+</LinearLayout>

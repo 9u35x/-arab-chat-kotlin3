@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "555844334641",
+    "project_id": "arab-chat-2fded",
+    "storage_bucket": "arab-chat-2fded.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:555844334641:android:713e02f2973959d4f49110",
+        "android_client_info": {
+          "package_name": "com.arabchat.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "555844334641-7bpsokm2gn0uhrmls4okjgr89t0bpnkb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2ZBdNFnb5UecsKQJSWuXHUWXAzyeuang"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "555844334641-7bpsokm2gn0uhrmls4okjgr89t0bpnkb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

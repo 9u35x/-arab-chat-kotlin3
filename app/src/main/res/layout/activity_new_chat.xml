@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bgBase">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/amoledBlack"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp">
+
+        <TextView
+            android:id="@+id/tvBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="←"
+            android:textColor="@color/colorAccent"
+            android:textSize="20sp"
+            android:paddingEnd="14dp"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/new_chat_title"
+            android:textColor="@color/textPrimaryDark"
+            android:textSize="17sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvToggleGroupMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/create_group"
+            android:textColor="@color/colorAccentLight"
+            android:textSize="13sp"
+            android:padding="6dp"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/etGroupName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="14dp"
+        android:background="@drawable/bg_input_field"
+        android:hint="@string/group_name_hint"
+        android:textColor="@color/textPrimaryDark"
+        android:textColorHint="@color/textTertiaryDark"
+        android:singleLine="true"
+        android:visibility="gone"
+        android:textCursorDrawable="@null" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvUsers"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/tvCreateGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="14dp"
+        android:background="@drawable/bg_gradient_button"
+        android:text="@string/create_group_button"
+        android:textColor="@color/textOnAccent"
+        android:textSize="15sp"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true" />
+
+</LinearLayout>
