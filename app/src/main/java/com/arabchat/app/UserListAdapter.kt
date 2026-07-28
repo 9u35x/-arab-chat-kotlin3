@@ -28,8 +28,9 @@ class UserListAdapter(
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
         val user = users[position]
-        holder.avatarLetter.text = if (user.username.isNotEmpty()) user.username.take(1).uppercase() else "?"
-        holder.username.text = user.username
+        val name = user.bestName()
+        holder.avatarLetter.text = if (name.isNotEmpty()) name.take(1).uppercase() else "?"
+        holder.username.text = name
         holder.checkbox.visibility = if (groupMode) View.VISIBLE else View.GONE
         holder.checkbox.isChecked = selectedUsers.contains(user.uid)
 

@@ -21,6 +21,7 @@ class NewChatActivity : AppCompatActivity() {
     private lateinit var tvToggleGroupMode: TextView
 
     private var myUsername: String = "مستخدم"
+    private var allUsers: List<UserProfile> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +47,17 @@ class NewChatActivity : AppCompatActivity() {
             startDirectChat(user)
         }
         rvUsers.adapter = adapter
+
+        val etSearchUsers = findViewById<EditText?>(R.id.etSearchUsers)
+        etSearchUsers?.addTextChangedListener(SimpleTextWatcher { q ->
+            val filtered = if (q.isBlank()) allUsers
+            else allUsers.filter {
+                it.bestName().contains(q, true) ||
+                    it.username.contains(q, true) ||
+                    (it.email?.contains(q, true) == true)
+            }
+            adapter.submitList(filtered)
+        })
 
         tvBack.setOnClickListener { finish() }
 
@@ -74,10 +86,10 @@ class NewChatActivity : AppCompatActivity() {
     private fun loadUsers(myUid: String) {
         db.collection("users").get()
             .addOnSuccessListener { snapshot ->
-                val users = snapshot.documents.mapNotNull { doc ->
+                allUsers = snapshot.documents.mapNotNull { doc ->
                     doc.toObject(UserProfile::class.java)?.also { it.uid = doc.id }
                 }.filter { it.uid != myUid }
-                adapter.submitList(users)
+                adapter.submitList(allUsers)
             }
     }
 

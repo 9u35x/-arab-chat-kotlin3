@@ -17,7 +17,10 @@ object UserRepo {
                     user.email?.substringBefore("@") ?: "مستخدم"
                 }
                 val data = hashMapOf(
-                    "username" to name,
+                    "displayName" to name,
+                    "username" to name.lowercase().replace(" ", ""),
+                    "bio" to "",
+                    "gender" to "",
                     "email" to user.email
                 )
                 docRef.set(data).addOnCompleteListener { onDone?.invoke() }

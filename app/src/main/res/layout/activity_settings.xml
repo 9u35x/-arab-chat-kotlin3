@@ -8,9 +8,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingBottom="32dp">
 
-        <!-- Top bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,9 +43,7 @@
                 android:fontFamily="sans-serif-medium"
                 android:gravity="center" />
 
-            <View
-                android:layout_width="44dp"
-                android:layout_height="44dp" />
+            <View android:layout_width="44dp" android:layout_height="44dp" />
         </LinearLayout>
 
         <!-- Notifications -->
@@ -59,130 +57,132 @@
             android:layout_marginStart="14dp"
             android:layout_marginEnd="14dp"
             android:padding="16dp">
-
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/notifications_label"
-                    android:textColor="@color/textPrimaryDark"
-                    android:textSize="15sp"
-                    android:fontFamily="sans-serif-medium" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/notifications_hint"
-                    android:textColor="@color/textSecondaryDark"
-                    android:textSize="12sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/notifications_label" android:textColor="@color/textPrimaryDark" android:textSize="15sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp" android:text="@string/notifications_hint"
+                    android:textColor="@color/textSecondaryDark" android:textSize="12sp" />
             </LinearLayout>
-
-            <Switch
-                android:id="@+id/switchNotifications"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:thumbTint="@color/colorAccent"
-                android:trackTint="@color/surfaceElevated2" />
+            <Switch android:id="@+id/switchNotifications" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:thumbTint="@color/colorAccent" android:trackTint="@color/surfaceElevated2" />
         </LinearLayout>
 
-        <!-- Open profile -->
-        <TextView
-            android:id="@+id/tvOpenProfile"
+        <!-- Last seen -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/surfaceElevated"
             android:layout_marginTop="10dp"
             android:layout_marginStart="14dp"
             android:layout_marginEnd="14dp"
-            android:background="@color/surfaceElevated"
-            android:padding="16dp"
-            android:text="@string/my_profile"
-            android:textColor="@color/textPrimaryDark"
-            android:textSize="15sp"
-            android:drawableEnd="@android:drawable/ic_menu_edit"
-            android:clickable="true"
-            android:focusable="true" />
+            android:padding="16dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/last_seen_label" android:textColor="@color/textPrimaryDark" android:textSize="15sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp" android:text="@string/last_seen_hint"
+                    android:textColor="@color/textSecondaryDark" android:textSize="12sp" />
+            </LinearLayout>
+            <Switch android:id="@+id/switchLastSeen" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:thumbTint="@color/colorAccent" android:trackTint="@color/surfaceElevated2" />
+        </LinearLayout>
 
-        <!-- About -->
-        <TextView
-            android:id="@+id/tvAbout"
+        <!-- Read receipts -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/surfaceElevated"
             android:layout_marginTop="10dp"
             android:layout_marginStart="14dp"
             android:layout_marginEnd="14dp"
-            android:background="@color/surfaceElevated"
-            android:padding="16dp"
-            android:text="@string/about_title"
-            android:textColor="@color/textPrimaryDark"
-            android:textSize="15sp"
-            android:clickable="true"
-            android:focusable="true" />
+            android:padding="16dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/read_receipts_label" android:textColor="@color/textPrimaryDark" android:textSize="15sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp" android:text="@string/read_receipts_hint"
+                    android:textColor="@color/textSecondaryDark" android:textSize="12sp" />
+            </LinearLayout>
+            <Switch android:id="@+id/switchReadReceipts" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:thumbTint="@color/colorAccent" android:trackTint="@color/surfaceElevated2" />
+        </LinearLayout>
 
-        <!-- Privacy -->
-        <TextView
-            android:id="@+id/tvPrivacy"
+        <!-- Enter to send -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/surfaceElevated"
             android:layout_marginTop="10dp"
             android:layout_marginStart="14dp"
             android:layout_marginEnd="14dp"
-            android:background="@color/surfaceElevated"
-            android:padding="16dp"
-            android:text="@string/privacy_title"
-            android:textColor="@color/textPrimaryDark"
-            android:textSize="15sp"
-            android:clickable="true"
-            android:focusable="true" />
+            android:padding="16dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/enter_send_label" android:textColor="@color/textPrimaryDark" android:textSize="15sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp" android:text="@string/enter_send_hint"
+                    android:textColor="@color/textSecondaryDark" android:textSize="12sp" />
+            </LinearLayout>
+            <Switch android:id="@+id/switchEnterToSend" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:thumbTint="@color/colorAccent" android:trackTint="@color/surfaceElevated2" />
+        </LinearLayout>
 
-        <!-- Clear cache -->
-        <TextView
-            android:id="@+id/tvClearCache"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="14dp"
-            android:layout_marginEnd="14dp"
-            android:background="@color/surfaceElevated"
-            android:padding="16dp"
-            android:text="@string/clear_cache"
-            android:textColor="@color/textPrimaryDark"
-            android:textSize="15sp"
-            android:clickable="true"
-            android:focusable="true" />
+        <TextView android:id="@+id/tvOpenProfile" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:layout_marginStart="14dp" android:layout_marginEnd="14dp"
+            android:background="@color/surfaceElevated" android:padding="16dp"
+            android:text="@string/my_profile" android:textColor="@color/textPrimaryDark" android:textSize="15sp"
+            android:clickable="true" android:focusable="true" />
 
-        <!-- Logout -->
-        <TextView
-            android:id="@+id/tvLogoutSettings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:layout_marginStart="14dp"
-            android:layout_marginEnd="14dp"
-            android:background="@drawable/bg_input_field"
-            android:gravity="center"
-            android:paddingTop="14dp"
-            android:paddingBottom="14dp"
-            android:text="@string/logout"
-            android:textColor="@color/errorRed"
-            android:textSize="15sp"
-            android:clickable="true"
-            android:focusable="true" />
+        <TextView android:id="@+id/tvChannels" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:layout_marginStart="14dp" android:layout_marginEnd="14dp"
+            android:background="@color/surfaceElevated" android:padding="16dp"
+            android:text="@string/channels_title" android:textColor="@color/textPrimaryDark" android:textSize="15sp"
+            android:clickable="true" android:focusable="true" />
 
-        <TextView
-            android:id="@+id/tvVersion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="32dp"
-            android:gravity="center"
-            android:textColor="@color/textTertiaryDark"
-            android:textSize="12sp" />
+        <TextView android:id="@+id/tvBlocked" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:layout_marginStart="14dp" android:layout_marginEnd="14dp"
+            android:background="@color/surfaceElevated" android:padding="16dp"
+            android:text="@string/blocked_users" android:textColor="@color/textPrimaryDark" android:textSize="15sp"
+            android:clickable="true" android:focusable="true" />
 
+        <TextView android:id="@+id/tvAbout" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:layout_marginStart="14dp" android:layout_marginEnd="14dp"
+            android:background="@color/surfaceElevated" android:padding="16dp"
+            android:text="@string/about_title" android:textColor="@color/textPrimaryDark" android:textSize="15sp"
+            android:clickable="true" android:focusable="true" />
+
+        <TextView android:id="@+id/tvPrivacy" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:layout_marginStart="14dp" android:layout_marginEnd="14dp"
+            android:background="@color/surfaceElevated" android:padding="16dp"
+            android:text="@string/privacy_title" android:textColor="@color/textPrimaryDark" android:textSize="15sp"
+            android:clickable="true" android:focusable="true" />
+
+        <TextView android:id="@+id/tvClearCache" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:layout_marginStart="14dp" android:layout_marginEnd="14dp"
+            android:background="@color/surfaceElevated" android:padding="16dp"
+            android:text="@string/clear_cache" android:textColor="@color/textPrimaryDark" android:textSize="15sp"
+            android:clickable="true" android:focusable="true" />
+
+        <TextView android:id="@+id/tvLogoutSettings" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="18dp" android:layout_marginStart="14dp" android:layout_marginEnd="14dp"
+            android:background="@drawable/bg_input_field" android:gravity="center"
+            android:paddingTop="14dp" android:paddingBottom="14dp"
+            android:text="@string/logout" android:textColor="@color/errorRed" android:textSize="15sp"
+            android:clickable="true" android:focusable="true" />
+
+        <TextView android:id="@+id/tvVersion" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:gravity="center"
+            android:textColor="@color/textTertiaryDark" android:textSize="12sp" />
     </LinearLayout>
 </ScrollView>

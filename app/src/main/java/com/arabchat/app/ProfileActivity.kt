@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
@@ -17,17 +19,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 
-/**
- * ProfileActivity works in two modes:
- *
- * 1) Contact / group info mode — launched from ChatActivity with a "name"
- *    (and optional "isGroup") extra. Shows a read-only summary of the chat.
- *
- * 2) My profile mode — launched without extras (e.g. from HomeActivity).
- *    Shows the signed-in user's own profile: avatar (uploaded to Supabase
- *    Storage), editable username (saved to Firestore "users/{uid}") and a
- *    logout action.
- */
 class ProfileActivity : AppCompatActivity() {
 
     private var isOwnProfile = false
@@ -43,11 +34,17 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvChangePhoto: TextView
     private lateinit var progressPhoto: ProgressBar
     private lateinit var tvProfileName: TextView
-    private lateinit var etProfileName: EditText
+    private lateinit var etDisplayName: EditText
+    private lateinit var etUsername: EditText
+    private lateinit var etBio: EditText
+    private lateinit var radioGender: RadioGroup
+    private lateinit var radioMale: RadioButton
+    private lateinit var radioFemale: RadioButton
     private lateinit var tvProfileSubtitle: TextView
     private lateinit var tvSaveProfile: TextView
     private lateinit var progressSave: ProgressBar
     private lateinit var tvLogoutProfile: TextView
+    private lateinit var layoutOwnFields: View
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -64,11 +61,17 @@ class ProfileActivity : AppCompatActivity() {
         tvChangePhoto = findViewById(R.id.tvChangePhoto)
         progressPhoto = findViewById(R.id.progressPhoto)
         tvProfileName = findViewById(R.id.tvProfileName)
-        etProfileName = findViewById(R.id.etProfileName)
+        etDisplayName = findViewById(R.id.etDisplayName)
+        etUsername = findViewById(R.id.etUsername)
+        etBio = findViewById(R.id.etBio)
+        radioGender = findViewById(R.id.radioGender)
+        radioMale = findViewById(R.id.radioMale)
+        radioFemale = findViewById(R.id.radioFemale)
         tvProfileSubtitle = findViewById(R.id.tvProfileSubtitle)
         tvSaveProfile = findViewById(R.id.tvSaveProfile)
         progressSave = findViewById(R.id.progressSave)
         tvLogoutProfile = findViewById(R.id.tvLogoutProfile)
+        layoutOwnFields = findViewById(R.id.layoutOwnFields)
 
         tvBack.setOnClickListener { finish() }
 
@@ -82,9 +85,11 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun setupContactMode(name: String, isGroup: Boolean) {
         isOwnProfile = false
+        layoutOwnFields.visibility = View.GONE
         tvProfileAvatar.text = if (name.isNotEmpty()) name.take(1).uppercase() else "?"
+        tvProfileName.visibility = View.VISIBLE
         tvProfileName.text = name
-        tvProfileSubtitle.text = if (isGroup) "مجموعة" else "محادثة فردية"
+        tvProfileSubtitle.text = if (isGroup) "مجموعة / قناة" else "محادثة فردية"
     }
 
     private fun setupOwnProfileMode() {
@@ -101,14 +106,14 @@ class ProfileActivity : AppCompatActivity() {
 
         tvProfileTitle.text = getString(R.string.my_profile)
         tvProfileName.visibility = View.GONE
-        etProfileName.visibility = View.VISIBLE
+        layoutOwnFields.visibility = View.VISIBLE
         tvChangePhoto.visibility = View.VISIBLE
         tvSaveProfile.visibility = View.VISIBLE
         tvLogoutProfile.visibility = View.VISIBLE
 
-        val tvOpenSettings: TextView = findViewById(R.id.tvOpenSettings)
-        tvOpenSettings.visibility = View.VISIBLE
-        tvOpenSettings.setOnClickListener {
+        val tvOpenSettings: TextView? = findViewById(R.id.tvOpenSettings)
+        tvOpenSettings?.visibility = View.VISIBLE
+        tvOpenSettings?.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
@@ -126,8 +131,7 @@ class ProfileActivity : AppCompatActivity() {
         ivProfileAvatar.setOnClickListener(changePhotoAction)
         tvProfileAvatar.setOnClickListener(changePhotoAction)
 
-        tvSaveProfile.setOnClickListener { saveUsername(user.uid) }
-
+        tvSaveProfile.setOnClickListener { saveProfile(user.uid) }
         tvLogoutProfile.setOnClickListener {
             auth.signOut()
             startActivity(Intent(this, LoginActivity::class.java))
@@ -139,19 +143,27 @@ class ProfileActivity : AppCompatActivity() {
         db.collection("users").document(uid).get()
             .addOnSuccessListener { snapshot ->
                 val profile = snapshot.toObject(UserProfile::class.java)
-                val username = profile?.username?.takeIf { it.isNotBlank() }
+                val display = profile?.displayName?.takeIf { it.isNotBlank() }
+                    ?: profile?.username?.takeIf { it.isNotBlank() }
                     ?: auth.currentUser?.email?.substringBefore("@")
                     ?: getString(R.string.guest_label)
 
-                etProfileName.setText(username)
-                tvProfileAvatar.text = if (username.isNotEmpty()) username.take(1).uppercase() else "?"
+                etDisplayName.setText(profile?.displayName ?: display)
+                etUsername.setText(profile?.username ?: "")
+                etBio.setText(profile?.bio ?: "")
+                when (profile?.gender) {
+                    "male" -> radioMale.isChecked = true
+                    "female" -> radioFemale.isChecked = true
+                    else -> radioGender.clearCheck()
+                }
 
+                tvProfileAvatar.text = if (display.isNotEmpty()) display.take(1).uppercase() else "?"
                 currentAvatarUrl = profile?.avatarUrl
                 showAvatar(currentAvatarUrl)
             }
             .addOnFailureListener {
                 val fallback = auth.currentUser?.email?.substringBefore("@") ?: getString(R.string.guest_label)
-                etProfileName.setText(fallback)
+                etDisplayName.setText(fallback)
                 tvProfileAvatar.text = fallback.take(1).uppercase()
             }
     }
@@ -160,20 +172,24 @@ class ProfileActivity : AppCompatActivity() {
         if (!url.isNullOrEmpty()) {
             ivProfileAvatar.visibility = View.VISIBLE
             tvProfileAvatar.visibility = View.GONE
-            Glide.with(this)
-                .load(url)
-                .circleCrop()
-                .error(R.drawable.bg_avatar_circle)
-                .into(ivProfileAvatar)
+            Glide.with(this).load(url).circleCrop().error(R.drawable.bg_avatar_circle).into(ivProfileAvatar)
         } else {
             ivProfileAvatar.visibility = View.GONE
             tvProfileAvatar.visibility = View.VISIBLE
         }
     }
 
-    private fun saveUsername(uid: String) {
-        val newName = etProfileName.text.toString().trim()
-        if (newName.isEmpty()) {
+    private fun saveProfile(uid: String) {
+        val displayName = etDisplayName.text.toString().trim()
+        val username = etUsername.text.toString().trim().replace(" ", "")
+        val bio = etBio.text.toString().trim()
+        val gender = when {
+            radioMale.isChecked -> "male"
+            radioFemale.isChecked -> "female"
+            else -> ""
+        }
+
+        if (displayName.isEmpty()) {
             Toast.makeText(this, getString(R.string.error_username_empty), Toast.LENGTH_SHORT).show()
             return
         }
@@ -181,12 +197,19 @@ class ProfileActivity : AppCompatActivity() {
         tvSaveProfile.isEnabled = false
         progressSave.visibility = View.VISIBLE
 
+        val data = hashMapOf<String, Any>(
+            "displayName" to displayName,
+            "username" to username,
+            "bio" to bio,
+            "gender" to gender
+        )
+
         db.collection("users").document(uid)
-            .set(mapOf("username" to newName), SetOptions.merge())
+            .set(data, SetOptions.merge())
             .addOnSuccessListener {
                 progressSave.visibility = View.GONE
                 tvSaveProfile.isEnabled = true
-                tvProfileAvatar.text = newName.take(1).uppercase()
+                tvProfileAvatar.text = displayName.take(1).uppercase()
                 Toast.makeText(this, getString(R.string.profile_updated), Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { e ->
@@ -200,6 +223,7 @@ class ProfileActivity : AppCompatActivity() {
         val uid = auth.currentUser?.uid ?: return
         progressPhoto.visibility = View.VISIBLE
         tvChangePhoto.isEnabled = false
+        Toast.makeText(this, getString(R.string.uploading_photo), Toast.LENGTH_SHORT).show()
 
         val remotePath = "avatars/$uid.jpg"
         SupabaseStorage.uploadFromUri(this, uri, remotePath, "image/jpeg") { publicUrl, error ->
@@ -207,15 +231,16 @@ class ProfileActivity : AppCompatActivity() {
             tvChangePhoto.isEnabled = true
 
             if (publicUrl != null) {
-                // Bust any CDN/Glide cache so the new photo shows immediately.
                 val cacheBustedUrl = "$publicUrl?t=${System.currentTimeMillis()}"
                 currentAvatarUrl = publicUrl
                 showAvatar(cacheBustedUrl)
-
                 db.collection("users").document(uid)
                     .set(mapOf("avatarUrl" to publicUrl), SetOptions.merge())
+                    .addOnSuccessListener {
+                        Toast.makeText(this, getString(R.string.profile_updated), Toast.LENGTH_SHORT).show()
+                    }
             } else {
-                Toast.makeText(this, error ?: getString(R.string.error_username_empty), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, error ?: "فشل رفع الصورة", Toast.LENGTH_LONG).show()
             }
         }
     }

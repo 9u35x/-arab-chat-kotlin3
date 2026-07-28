@@ -5,17 +5,27 @@ import java.util.Date
 
 data class Chat(
     var id: String = "",
-    val type: String = "direct", // "direct" or "group"
-    val name: String? = null, // group name only; direct chats resolve name client-side
+    val type: String = "direct", // "direct", "group", "channel"
+    val name: String? = null,
+    val description: String? = null,
     val participants: List<String> = emptyList(),
     val participantNames: Map<String, String> = emptyMap(),
+    val admins: List<String> = emptyList(),
     val lastMessage: String = "",
     @ServerTimestamp
     val lastMessageTime: Date? = null
 ) {
     fun titleFor(currentUid: String): String {
-        if (type == "group") return name ?: "مجموعة"
-        val otherUid = participants.firstOrNull { it != currentUid }
-        return participantNames[otherUid] ?: "محادثة"
+        return when (type) {
+            "group" -> name ?: "مجموعة"
+            "channel" -> name ?: "قناة"
+            else -> {
+                val otherUid = participants.firstOrNull { it != currentUid }
+                participantNames[otherUid] ?: "محادثة"
+            }
+        }
     }
+
+    fun isChannel(): Boolean = type == "channel"
+    fun isGroup(): Boolean = type == "group"
 }

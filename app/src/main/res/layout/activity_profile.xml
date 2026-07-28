@@ -16,19 +16,19 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:background="@color/amoledBlack"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="18dp"
             android:paddingTop="14dp"
             android:paddingBottom="14dp">
 
             <TextView
                 android:id="@+id/tvBack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="←"
-                android:textColor="@color/colorAccent"
-                android:textSize="20sp"
-                android:paddingEnd="14dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:text="→"
+                android:textColor="@color/textPrimaryDark"
+                android:textSize="22sp"
                 android:clickable="true"
                 android:focusable="true" />
 
@@ -39,10 +39,13 @@
                 android:layout_weight="1"
                 android:text="@string/profile_title"
                 android:textColor="@color/textPrimaryDark"
-                android:textSize="17sp"
+                android:textSize="18sp"
                 android:fontFamily="sans-serif-medium"
-                android:textStyle="bold" />
+                android:gravity="center" />
 
+            <View
+                android:layout_width="44dp"
+                android:layout_height="44dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -50,10 +53,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:paddingStart="28dp"
-            android:paddingEnd="28dp"
-            android:paddingTop="40dp"
-            android:paddingBottom="32dp">
+            android:padding="24dp">
 
             <FrameLayout
                 android:layout_width="110dp"
@@ -91,7 +91,6 @@
                     android:visibility="gone"
                     android:clickable="true"
                     android:focusable="true" />
-
             </FrameLayout>
 
             <ProgressBar
@@ -106,26 +105,10 @@
                 android:id="@+id/tvProfileName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:textColor="@color/textPrimaryDark"
                 android:textSize="20sp"
-                android:fontFamily="sans-serif-medium"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/etProfileName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_input_field"
-                android:hint="@string/username_hint"
-                android:textColor="@color/textPrimaryDark"
-                android:textColorHint="@color/textTertiaryDark"
-                android:textSize="16sp"
-                android:gravity="center"
-                android:singleLine="true"
-                android:visibility="gone"
-                android:textCursorDrawable="@null" />
+                android:fontFamily="sans-serif-medium" />
 
             <TextView
                 android:id="@+id/tvProfileSubtitle"
@@ -134,6 +117,115 @@
                 android:layout_marginTop="8dp"
                 android:textColor="@color/textSecondaryDark"
                 android:textSize="13sp" />
+
+            <LinearLayout
+                android:id="@+id/layoutOwnFields"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/display_name_label"
+                    android:textColor="@color/textSecondaryDark"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/etDisplayName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="@string/display_name_hint"
+                    android:textColor="@color/textPrimaryDark"
+                    android:textColorHint="@color/textTertiaryDark"
+                    android:padding="12dp"
+                    android:textSize="15sp"
+                    android:singleLine="true"
+                    android:textCursorDrawable="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/username_label"
+                    android:textColor="@color/textSecondaryDark"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/etUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="@string/username_at_hint"
+                    android:textColor="@color/textPrimaryDark"
+                    android:textColorHint="@color/textTertiaryDark"
+                    android:padding="12dp"
+                    android:textSize="15sp"
+                    android:singleLine="true"
+                    android:textCursorDrawable="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/bio_label"
+                    android:textColor="@color/textSecondaryDark"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/etBio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="@string/bio_hint"
+                    android:textColor="@color/textPrimaryDark"
+                    android:textColorHint="@color/textTertiaryDark"
+                    android:padding="12dp"
+                    android:textSize="15sp"
+                    android:minLines="2"
+                    android:maxLines="4"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:textCursorDrawable="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/gender_label"
+                    android:textColor="@color/textSecondaryDark"
+                    android:textSize="12sp" />
+
+                <RadioGroup
+                    android:id="@+id/radioGender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="6dp">
+
+                    <RadioButton
+                        android:id="@+id/radioMale"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/gender_male"
+                        android:textColor="@color/textPrimaryDark" />
+
+                    <RadioButton
+                        android:id="@+id/radioFemale"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/gender_female"
+                        android:textColor="@color/textPrimaryDark" />
+                </RadioGroup>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvSaveProfile"
@@ -191,8 +283,6 @@
                 android:visibility="gone"
                 android:clickable="true"
                 android:focusable="true" />
-
         </LinearLayout>
-
     </LinearLayout>
 </ScrollView>

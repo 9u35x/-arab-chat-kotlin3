@@ -28,7 +28,13 @@ class ChatListAdapter(
 
         holder.avatarLetter.text = if (title.isNotEmpty()) title.take(1).uppercase() else "?"
         holder.chatName.text = title
-        holder.lastMessage.text = if (chat.lastMessage.isNotEmpty()) chat.lastMessage else "لا توجد رسائل بعد"
+        val prefix = when (chat.type) {
+            "channel" -> "📢 "
+            "group" -> "👥 "
+            else -> ""
+        }
+        holder.lastMessage.text = if (chat.lastMessage.isNotEmpty()) prefix + chat.lastMessage
+        else prefix + "لا توجد رسائل بعد"
         holder.chatTime.text = chat.lastMessageTime?.let { timeFormat.format(it) } ?: ""
 
         holder.itemView.setOnClickListener { onChatClick(chat) }
