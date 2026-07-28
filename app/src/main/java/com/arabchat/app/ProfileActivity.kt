@@ -159,9 +159,15 @@ class ProfileActivity : AppCompatActivity() {
     private fun showAvatar(url: String?) {
         if (!url.isNullOrEmpty()) {
             ivProfileAvatar.visibility = View.VISIBLE
-            Glide.with(this).load(url).circleCrop().into(ivProfileAvatar)
+            tvProfileAvatar.visibility = View.GONE
+            Glide.with(this)
+                .load(url)
+                .circleCrop()
+                .error(R.drawable.bg_avatar_circle)
+                .into(ivProfileAvatar)
         } else {
             ivProfileAvatar.visibility = View.GONE
+            tvProfileAvatar.visibility = View.VISIBLE
         }
     }
 
