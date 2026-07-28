@@ -395,4 +395,68 @@ class ChatActivity : AppCompatActivity() {
         return false
     }
 
+
+    private fun showManageAdminsDialog() {
+        chatRef.get().addOnSuccessListener { doc ->
+            val participants = (doc.get("participants") as? List<*>)?.map { it.toString() } ?: emptyList()
+            if (participants.isEmpty()) {
+                Toast.makeText(this, "لا يوجد أعضاء", Toast.LENGTH_SHORT).show()
+                return@addOnSuccessListener
+            }
+            val admins = (doc.get("admins") as? List<*>)?.map { it.toString() }?.toMutableList()
+                ?: mutableListOf()
+
+            // Load display names one-by-one (safer than whereIn limits)
+            val names = mutableMapOf<String, String>()
+            var pending = participants.size
+            fun maybeShow() {
+                if (pending > 0) return
+                val labels = participants.map { uid ->
+                    val tag = if (uid in admins) " ⭐" else ""
+                    (names[uid] ?: uid.take(6)) + tag
+                }.toTypedArray()
+                val checked = BooleanArray(participants.size) { participants[it] in admins }
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle(R.string.manage_admins)
+                    .setMultiChoiceItems(labels, checked) { _, which, isChecked ->
+                        val uid = participants[which]
+                        if (isChecked) {
+                            if (uid !in admins) admins.add(uid)
+                        } else {
+                            if (admins.size > 1) admins.remove(uid)
+                            else {
+                                checked[which] = true
+                                Toast.makeText(this, R.string.keep_one_admin, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    .setPositiveButton(R.string.save_changes) { _, _ ->
+                        chatRef.update("admins", admins)
+                            .addOnSuccessListener {
+                                val me = auth.currentUser?.uid
+                                isAdmin = me != null && (me in admins)
+                                applyChannelPermissions()
+                                Toast.makeText(this, R.string.admins_updated, Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+            }
+            for (uid in participants) {
+                db.collection("users").document(uid).get()
+                    .addOnSuccessListener { snap ->
+                        val u = snap.toObject(UserProfile::class.java)
+                        names[uid] = u?.bestName() ?: uid.take(6)
+                        pending--
+                        maybeShow()
+                    }
+                    .addOnFailureListener {
+                        names[uid] = uid.take(6)
+                        pending--
+                        maybeShow()
+                    }
+            }
+        }
+    }
+
 }
