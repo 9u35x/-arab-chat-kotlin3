@@ -75,21 +75,44 @@ class ProfileActivity : AppCompatActivity() {
 
         tvBack.setOnClickListener { finish() }
 
+        val userId = intent.getStringExtra("userId")
         val name = intent.getStringExtra("name")
-        if (name != null) {
-            setupContactMode(name, intent.getBooleanExtra("isGroup", false))
+        if (userId != null || name != null) {
+            setupContactMode(userId, name, intent.getBooleanExtra("isGroup", false))
         } else {
             setupOwnProfileMode()
         }
     }
 
-    private fun setupContactMode(name: String, isGroup: Boolean) {
+    private fun setupContactMode(userId: String?, fallbackName: String?, isGroup: Boolean) {
         isOwnProfile = false
         layoutOwnFields.visibility = View.GONE
+        val name = fallbackName ?: "?"
         tvProfileAvatar.text = if (name.isNotEmpty()) name.take(1).uppercase() else "?"
         tvProfileName.visibility = View.VISIBLE
         tvProfileName.text = name
-        tvProfileSubtitle.text = if (isGroup) "مجموعة / قناة" else "محادثة فردية"
+        tvProfileSubtitle.text = if (isGroup) "مجموعة / قناة" else ""
+
+        // Never show email. Load public fields only.
+        if (!userId.isNullOrBlank() && !isGroup) {
+            db = FirebaseFirestore.getInstance()
+            db.collection("users").document(userId).get()
+                .addOnSuccessListener { snap ->
+                    val profile = snap.toObject(UserProfile::class.java)
+                    val display = profile?.bestName() ?: name
+                    tvProfileName.text = display
+                    tvProfileAvatar.text = if (display.isNotEmpty()) display.take(1).uppercase() else "?"
+                    val parts = mutableListOf<String>()
+                    if (!profile?.username.isNullOrBlank()) parts.add("@${profile?.username}")
+                    when (profile?.gender) {
+                        "male" -> parts.add(getString(R.string.gender_male))
+                        "female" -> parts.add(getString(R.string.gender_female))
+                    }
+                    if (!profile?.bio.isNullOrBlank()) parts.add(profile!!.bio)
+                    tvProfileSubtitle.text = parts.joinToString(" · ")
+                    showAvatar(profile?.avatarUrl)
+                }
+        }
     }
 
     private fun setupOwnProfileMode() {

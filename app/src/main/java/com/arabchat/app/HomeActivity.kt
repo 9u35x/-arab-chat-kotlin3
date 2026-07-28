@@ -70,6 +70,11 @@ class HomeActivity : AppCompatActivity() {
             finish()
         }
 
+        etSearch.isFocusable = false
+        etSearch.setOnClickListener {
+            startActivity(Intent(this, SearchActivity::class.java))
+        }
+        // local filter still works if user pastes somehow
         etSearch.addTextChangedListener(SimpleTextWatcher { q ->
             applyFilter(q)
         })

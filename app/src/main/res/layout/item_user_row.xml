@@ -4,40 +4,66 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:background="@drawable/ripple_row"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
+    android:paddingStart="14dp"
+    android:paddingEnd="14dp"
     android:paddingTop="12dp"
     android:paddingBottom="12dp"
-    android:clickable="true"
-    android:focusable="true">
+    android:background="?android:attr/selectableItemBackground">
 
-    <TextView
-        android:id="@+id/tvAvatarLetter"
-        android:layout_width="46dp"
-        android:layout_height="46dp"
-        android:background="@drawable/bg_avatar_circle"
-        android:gravity="center"
-        android:textColor="@color/textOnAccent"
-        android:textSize="17sp"
-        android:textStyle="bold" />
+    <FrameLayout
+        android:layout_width="48dp"
+        android:layout_height="48dp">
 
-    <TextView
-        android:id="@+id/tvUsername"
+        <TextView
+            android:id="@+id/tvAvatarLetter"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_avatar_circle"
+            android:gravity="center"
+            android:textColor="@color/textOnAccent"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/ivAvatar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginStart="14dp"
-        android:textColor="@color/textPrimaryDark"
-        android:textSize="15.5sp" />
+        android:layout_marginStart="12dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textPrimaryDark"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/tvUserSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/textSecondaryDark"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="end" />
+    </LinearLayout>
 
     <CheckBox
         android:id="@+id/checkboxSelect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:buttonTint="@color/colorAccent"
-        android:visibility="gone"
-        android:clickable="false"
-        android:focusable="false" />
-
+        android:visibility="gone" />
 </LinearLayout>

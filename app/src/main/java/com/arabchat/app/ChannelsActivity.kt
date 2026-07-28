@@ -89,13 +89,23 @@ class ChannelsActivity : AppCompatActivity() {
     private fun joinAndOpen(chat: Chat, uid: String) {
         val participants = chat.participants.toMutableList()
         if (!participants.contains(uid)) {
-            participants.add(uid)
-            db.collection("chats").document(chat.id)
-                .update("participants", participants)
-                .addOnSuccessListener { openChat(chat.id, chat.name ?: "قناة") }
-                .addOnFailureListener { e ->
-                    Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+            AlertDialog.Builder(this)
+                .setTitle(chat.name ?: getString(R.string.channels_title))
+                .setMessage(chat.description?.takeIf { it.isNotBlank() } ?: getString(R.string.join_channel_confirm))
+                .setPositiveButton(R.string.join_channel) { _, _ ->
+                    participants.add(uid)
+                    db.collection("chats").document(chat.id)
+                        .update("participants", participants)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, R.string.joined_channel, Toast.LENGTH_SHORT).show()
+                            openChat(chat.id, chat.name ?: "قناة")
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+                        }
                 }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
         } else {
             openChat(chat.id, chat.name ?: "قناة")
         }

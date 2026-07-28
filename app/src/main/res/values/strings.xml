@@ -91,4 +91,14 @@
     <string name="enter_send_hint">إرسال الرسالة بمفتاح الإدخال</string>
     <string name="blocked_users">المحظورون</string>
     <string name="blocked_soon">قريباً — قائمة المحظورين</string>
+
+    <string name="search_unified_hint">بحث عن مستخدمين أو قنوات…</string>
+    <string name="users_section">المستخدمون</string>
+    <string name="channels_section">القنوات</string>
+    <string name="search_empty">لا نتائج</string>
+    <string name="join_channel">انضمام</string>
+    <string name="joined_channel">تم الانضمام للقناة</string>
+    <string name="join_channel_confirm">هل تريد الانضمام لهذه القناة؟</string>
+    <string name="channel_readonly_hint">القناة للقراءة فقط — المشرف ينشر</string>
+
 </resources>

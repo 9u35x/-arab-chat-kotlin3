@@ -30,6 +30,10 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var etMessage: EditText
     private lateinit var chatId: String
     private lateinit var chatTitle: String
+    private var chatType: String = "direct"
+    private var otherUserId: String? = null
+    private var isAdmin: Boolean = false
+    private var isMember: Boolean = true
 
     private var listenerRegistration: ListenerRegistration? = null
     private var isRecording = false
@@ -107,15 +111,27 @@ class ChatActivity : AppCompatActivity() {
         tvBack.setOnClickListener { finish() }
         tvSend.setOnClickListener { sendTextMessage() }
 
-        var isGroupChat = false
         tvTitle.setOnClickListener {
             val profileIntent = android.content.Intent(this, ProfileActivity::class.java)
             profileIntent.putExtra("name", chatTitle)
-            profileIntent.putExtra("isGroup", isGroupChat)
+            val isGroupLike = chatType == "group" || chatType == "channel"
+            profileIntent.putExtra("isGroup", isGroupLike)
+            if (!isGroupLike && otherUserId != null) {
+                profileIntent.putExtra("userId", otherUserId)
+            }
             startActivity(profileIntent)
         }
         chatRef.get().addOnSuccessListener { doc ->
-            isGroupChat = doc.getString("type") == "group"
+            chatType = doc.getString("type") ?: "direct"
+            val participants = (doc.get("participants") as? List<*>)?.map { it.toString() } ?: emptyList()
+            val admins = (doc.get("admins") as? List<*>)?.map { it.toString() } ?: emptyList()
+            isMember = uid in participants
+            isAdmin = uid in admins || (chatType != "channel" && true)
+            if (chatType == "channel") {
+                isAdmin = uid in admins || participants.firstOrNull() == uid
+            }
+            otherUserId = participants.firstOrNull { it != uid }
+            applyChannelPermissions()
         }
 
         tvPickImage.setOnClickListener {
@@ -320,4 +336,18 @@ class ChatActivity : AppCompatActivity() {
         if (message.id.isEmpty()) return
         messagesRef.document(message.id).update("viewed", true)
     }
+
+    private fun applyChannelPermissions() {
+        if (chatType != "channel") return
+        val etMessage = findViewById<android.widget.EditText>(R.id.etMessage)
+        val tvSend = findViewById<android.view.View>(R.id.tvSend)
+        val tvPick = findViewById<android.view.View>(R.id.tvPickImage)
+        val canPost = isAdmin
+        etMessage?.isEnabled = canPost
+        etMessage?.hint = if (canPost) getString(R.string.message_hint) else getString(R.string.channel_readonly_hint)
+        tvSend?.isEnabled = canPost
+        tvPick?.isEnabled = canPost
+        if (!canPost) etMessage?.setText("")
+    }
+
 }

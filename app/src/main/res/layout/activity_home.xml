@@ -83,7 +83,7 @@
         android:layout_marginEnd="14dp"
         android:layout_marginBottom="6dp"
         android:background="@drawable/bg_input_field"
-        android:hint="@string/search_chats_hint"
+        android:hint="@string/search_unified_hint"
         android:textColor="@color/textPrimaryDark"
         android:textColorHint="@color/textTertiaryDark"
         android:padding="12dp"
