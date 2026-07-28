@@ -121,6 +121,14 @@ class ChatActivity : AppCompatActivity() {
             }
             startActivity(profileIntent)
         }
+        tvTitle.setOnLongClickListener {
+            if ((chatType == "channel" || chatType == "group") && isAdmin) {
+                showManageAdminsDialog()
+                true
+            } else {
+                false
+            }
+        }
         chatRef.get().addOnSuccessListener { doc ->
             chatType = doc.getString("type") ?: "direct"
             val participants = (doc.get("participants") as? List<*>)?.map { it.toString() } ?: emptyList()
@@ -138,12 +146,14 @@ class ChatActivity : AppCompatActivity() {
         }
 
         tvPickImage.setOnClickListener {
+            if (!guardPostOrToast()) return@setOnClickListener
             nextImageIsTemporary = false
             pickImageLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
             )
         }
         tvPickImage.setOnLongClickListener {
+            if (!guardPostOrToast()) return@setOnLongClickListener true
             nextImageIsTemporary = true
             Toast.makeText(this, "الصورة الجاية راح تكون مؤقتة (تختفي بعد المشاهدة)", Toast.LENGTH_SHORT).show()
             pickImageLauncher.launch(
@@ -153,6 +163,7 @@ class ChatActivity : AppCompatActivity() {
         }
 
         tvRecordVoice.setOnClickListener {
+            if (!guardPostOrToast()) return@setOnClickListener
             if (!isRecording) {
                 val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 if (permission == PackageManager.PERMISSION_GRANTED) {
@@ -196,6 +207,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun sendTextMessage() {
+        if (!guardPostOrToast()) return
         val text = etMessage.text.toString().trim()
         if (text.isEmpty()) return
 
@@ -225,6 +237,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun uploadAndSendImage(uri: Uri, temporary: Boolean) {
+        if (!guardPostOrToast()) return
         val user = auth.currentUser ?: return
         val senderName = currentSenderName()
         val remotePath = "$chatId/${System.currentTimeMillis()}.jpg"
@@ -256,6 +269,7 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun startRecording() {
+        if (!guardPostOrToast()) return
         val fileName = "voice_${System.currentTimeMillis()}.m4a"
         recordFilePath = File(cacheDir, fileName).absolutePath
 
@@ -340,17 +354,45 @@ class ChatActivity : AppCompatActivity() {
         messagesRef.document(message.id).update("viewed", true)
     }
 
+    private fun canPostInThisChat(): Boolean {
+        return if (chatType == "channel") isAdmin else true
+    }
+
     private fun applyChannelPermissions() {
-        if (chatType != "channel") return
         val etMessage = findViewById<android.widget.EditText>(R.id.etMessage)
         val tvSend = findViewById<android.view.View>(R.id.tvSend)
         val tvPick = findViewById<android.view.View>(R.id.tvPickImage)
-        val canPost = isAdmin
-        etMessage?.isEnabled = canPost
-        etMessage?.hint = if (canPost) getString(R.string.message_hint) else getString(R.string.channel_readonly_hint)
-        tvSend?.isEnabled = canPost
-        tvPick?.isEnabled = canPost
-        if (!canPost) etMessage?.setText("")
+        val tvRecord = findViewById<android.view.View>(R.id.tvRecordVoice)
+        val tvTitle = findViewById<android.widget.TextView>(R.id.tvChatTitle)
+
+        if (chatType == "channel") {
+            val canPost = isAdmin
+            etMessage?.isEnabled = canPost
+            etMessage?.hint = if (canPost) getString(R.string.message_hint) else getString(R.string.channel_readonly_hint)
+            tvSend?.isEnabled = canPost
+            tvPick?.isEnabled = canPost
+            tvRecord?.isEnabled = canPost
+            tvRecord?.alpha = if (canPost) 1f else 0.35f
+            tvPick?.alpha = if (canPost) 1f else 0.35f
+            if (!canPost) etMessage?.setText("")
+            // show members count
+            chatRef.get().addOnSuccessListener { doc ->
+                val parts = (doc.get("participants") as? List<*>)?.size ?: 0
+                val base = chatTitle
+                tvTitle?.text = "$base · $parts مشترك"
+            }
+        } else if (chatType == "group") {
+            chatRef.get().addOnSuccessListener { doc ->
+                val parts = (doc.get("participants") as? List<*>)?.size ?: 0
+                tvTitle?.text = "$chatTitle · $parts أعضاء"
+            }
+        }
+    }
+
+    private fun guardPostOrToast(): Boolean {
+        if (canPostInThisChat()) return true
+        Toast.makeText(this, R.string.channel_readonly_hint, Toast.LENGTH_SHORT).show()
+        return false
     }
 
 }

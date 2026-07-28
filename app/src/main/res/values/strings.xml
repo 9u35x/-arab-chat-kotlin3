@@ -101,4 +101,10 @@
     <string name="join_channel_confirm">هل تريد الانضمام لهذه القناة؟</string>
     <string name="channel_readonly_hint">القناة للقراءة فقط — المشرف ينشر</string>
 
+
+    <string name="manage_admins">إدارة المشرفين</string>
+    <string name="admins_updated">تم تحديث المشرفين</string>
+    <string name="keep_one_admin">يجب الإبقاء على مشرف واحد على الأقل</string>
+    <string name="channel_members_format">%1$s · %2$d مشترك</string>
+
 </resources>
