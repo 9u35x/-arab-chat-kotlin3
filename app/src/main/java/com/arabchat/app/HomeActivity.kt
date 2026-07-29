@@ -44,12 +44,17 @@ class HomeActivity : AppCompatActivity() {
         tvEmptyState = findViewById(R.id.tvEmptyState)
 
         rvChats.layoutManager = LinearLayoutManager(this)
-        adapter = ChatListAdapter(mutableListOf(), user.uid) { chat ->
-            val intent = Intent(this, ChatActivity::class.java)
-            intent.putExtra("chatId", chat.id)
-            intent.putExtra("chatTitle", chat.titleFor(user.uid))
-            startActivity(intent)
-        }
+        adapter = ChatListAdapter(
+            mutableListOf(),
+            user.uid,
+            onChatClick = { chat ->
+                val intent = Intent(this, ChatActivity::class.java)
+                intent.putExtra("chatId", chat.id)
+                intent.putExtra("chatTitle", chat.titleFor(user.uid))
+                startActivity(intent)
+            },
+            onChatLongClick = { chat -> confirmDeleteChat(chat, user.uid) }
+        )
         rvChats.adapter = adapter
 
         fabNewChat.setOnClickListener {
@@ -116,4 +121,43 @@ class HomeActivity : AppCompatActivity() {
         super.onStop()
         listenerRegistration?.remove()
     }
+
+    private fun confirmDeleteChat(chat: Chat, myUid: String) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.delete_chat)
+            .setMessage(R.string.delete_chat_confirm)
+            .setPositiveButton(R.string.delete) { _, _ ->
+                leaveOrDeleteChat(chat, myUid)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun leaveOrDeleteChat(chat: Chat, myUid: String) {
+        val ref = db.collection("chats").document(chat.id)
+        if (chat.type == "direct") {
+            // delete messages + chat
+            ref.collection("messages").get()
+                .addOnSuccessListener { snap ->
+                    val batch = db.batch()
+                    for (d in snap.documents) batch.delete(d.reference)
+                    batch.delete(ref)
+                    batch.commit()
+                        .addOnSuccessListener {
+                            android.widget.Toast.makeText(this, R.string.chat_deleted, android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                }
+                .addOnFailureListener {
+                    ref.delete()
+                }
+        } else {
+            val participants = chat.participants.toMutableList()
+            participants.remove(myUid)
+            ref.update("participants", participants)
+                .addOnSuccessListener {
+                    android.widget.Toast.makeText(this, R.string.left_chat, android.widget.Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
 }

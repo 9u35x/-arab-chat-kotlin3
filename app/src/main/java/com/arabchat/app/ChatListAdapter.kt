@@ -14,7 +14,8 @@ import java.util.Locale
 class ChatListAdapter(
     private val chats: MutableList<Chat>,
     private val currentUid: String,
-    private val onChatClick: (Chat) -> Unit
+    private val onChatClick: (Chat) -> Unit,
+    private val onChatLongClick: (Chat) -> Unit = {}
 ) : RecyclerView.Adapter<ChatListAdapter.ChatViewHolder>() {
 
     private val timeFormat = SimpleDateFormat("hh:mm a", Locale("ar"))
@@ -70,6 +71,10 @@ class ChatListAdapter(
         }
 
         holder.itemView.setOnClickListener { onChatClick(chat) }
+        holder.itemView.setOnLongClickListener {
+            onChatLongClick(chat)
+            true
+        }
     }
 
     private fun bindAvatar(holder: ChatViewHolder, url: String?) {

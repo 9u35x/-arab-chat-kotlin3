@@ -1,39 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:gravity="end"
-    android:paddingStart="60dp"
+    android:paddingStart="48dp"
     android:paddingEnd="12dp"
     android:paddingTop="4dp"
     android:paddingBottom="4dp">
 
     <LinearLayout
+        android:id="@+id/bubbleRoot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="end"
         android:orientation="vertical"
         android:background="@drawable/bg_bubble_sent"
-        android:paddingStart="14dp"
-        android:paddingEnd="14dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="6dp"
+        android:maxWidth="280dp">
+
+        <TextView
+            android:id="@+id/tvMessageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textOnAccent"
+            android:textSize="15sp"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/ivMessageImage"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:layout_marginBottom="4dp"
             android:scaleType="centerCrop"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:contentDescription="@null" />
 
         <TextView
             android:id="@+id/tvTemporaryOverlay"
-            android:layout_width="200dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="👁 صورة مؤقتة"
             android:textColor="@color/textOnAccent"
             android:textSize="13sp"
             android:visibility="gone" />
@@ -48,29 +54,21 @@
 
             <TextView
                 android:id="@+id/tvPlayVoice"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:background="@drawable/bg_avatar_circle"
-                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="▶"
                 android:textColor="@color/textOnAccent"
-                android:textSize="13sp" />
+                android:textSize="18sp"
+                android:padding="6dp" />
 
             <TextView
                 android:id="@+id/tvVoiceDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:textColor="@color/textOnAccent"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:layout_marginStart="6dp" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvMessageText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/textOnAccent"
-            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/tvMessageTime"
@@ -78,8 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="4dp"
-            android:textColor="#D9FFFFFF"
-            android:textSize="11sp" />
-
+            android:textColor="#CCFFFFFF"
+            android:textSize="10sp" />
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>

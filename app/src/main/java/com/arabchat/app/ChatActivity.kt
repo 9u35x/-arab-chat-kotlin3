@@ -98,7 +98,8 @@ class ChatActivity : AppCompatActivity() {
             mutableListOf(),
             currentUser.uid,
             onPlayVoice = { url -> playVoice(url) },
-            onViewTemporaryImage = { message, _ -> markTemporaryViewed(message) }
+            onViewTemporaryImage = { message, _ -> markTemporaryViewed(message) },
+            onMessageLongClick = { message -> confirmDeleteMessage(message) }
         )
         rvMessages.adapter = adapter
 
@@ -109,6 +110,8 @@ class ChatActivity : AppCompatActivity() {
         }
 
         tvBack.setOnClickListener { finish() }
+        val tvDeleteChat: TextView? = findViewById(R.id.tvDeleteChat)
+        tvDeleteChat?.setOnClickListener { confirmDeleteChat() }
         tvSend.setOnClickListener { sendTextMessage() }
 
         tvTitle.setOnClickListener {
@@ -120,14 +123,6 @@ class ChatActivity : AppCompatActivity() {
                 profileIntent.putExtra("userId", otherUserId)
             }
             startActivity(profileIntent)
-        }
-        tvTitle.setOnLongClickListener {
-            if ((chatType == "channel" || chatType == "group") && isAdmin) {
-                showManageAdminsDialog()
-                true
-            } else {
-                false
-            }
         }
         chatRef.get().addOnSuccessListener { doc ->
             chatType = doc.getString("type") ?: "direct"
@@ -146,14 +141,12 @@ class ChatActivity : AppCompatActivity() {
         }
 
         tvPickImage.setOnClickListener {
-            if (!guardPostOrToast()) return@setOnClickListener
             nextImageIsTemporary = false
             pickImageLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
             )
         }
         tvPickImage.setOnLongClickListener {
-            if (!guardPostOrToast()) return@setOnLongClickListener true
             nextImageIsTemporary = true
             Toast.makeText(this, "الصورة الجاية راح تكون مؤقتة (تختفي بعد المشاهدة)", Toast.LENGTH_SHORT).show()
             pickImageLauncher.launch(
@@ -163,7 +156,6 @@ class ChatActivity : AppCompatActivity() {
         }
 
         tvRecordVoice.setOnClickListener {
-            if (!guardPostOrToast()) return@setOnClickListener
             if (!isRecording) {
                 val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 if (permission == PackageManager.PERMISSION_GRANTED) {
@@ -203,11 +195,13 @@ class ChatActivity : AppCompatActivity() {
 
     private fun currentSenderName(): String {
         val user = auth.currentUser
-        return if (user?.isAnonymous == true) "ضيف" else (user?.email ?: "مستخدم")
+        if (user == null) return "مستخدم"
+        if (user.isAnonymous) return "ضيف"
+        // Never store full email as display name
+        return user.email?.substringBefore("@") ?: "مستخدم"
     }
 
     private fun sendTextMessage() {
-        if (!guardPostOrToast()) return
         val text = etMessage.text.toString().trim()
         if (text.isEmpty()) return
 
@@ -237,7 +231,6 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun uploadAndSendImage(uri: Uri, temporary: Boolean) {
-        if (!guardPostOrToast()) return
         val user = auth.currentUser ?: return
         val senderName = currentSenderName()
         val remotePath = "$chatId/${System.currentTimeMillis()}.jpg"
@@ -269,7 +262,6 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun startRecording() {
-        if (!guardPostOrToast()) return
         val fileName = "voice_${System.currentTimeMillis()}.m4a"
         recordFilePath = File(cacheDir, fileName).absolutePath
 
@@ -354,108 +346,117 @@ class ChatActivity : AppCompatActivity() {
         messagesRef.document(message.id).update("viewed", true)
     }
 
-    private fun canPostInThisChat(): Boolean {
-        return if (chatType == "channel") isAdmin else true
-    }
-
     private fun applyChannelPermissions() {
+        if (chatType != "channel") return
         val etMessage = findViewById<android.widget.EditText>(R.id.etMessage)
         val tvSend = findViewById<android.view.View>(R.id.tvSend)
         val tvPick = findViewById<android.view.View>(R.id.tvPickImage)
-        val tvRecord = findViewById<android.view.View>(R.id.tvRecordVoice)
-        val tvTitle = findViewById<android.widget.TextView>(R.id.tvChatTitle)
+        val canPost = isAdmin
+        etMessage?.isEnabled = canPost
+        etMessage?.hint = if (canPost) getString(R.string.message_hint) else getString(R.string.channel_readonly_hint)
+        tvSend?.isEnabled = canPost
+        tvPick?.isEnabled = canPost
+        if (!canPost) etMessage?.setText("")
+    }
 
-        if (chatType == "channel") {
-            val canPost = isAdmin
-            etMessage?.isEnabled = canPost
-            etMessage?.hint = if (canPost) getString(R.string.message_hint) else getString(R.string.channel_readonly_hint)
-            tvSend?.isEnabled = canPost
-            tvPick?.isEnabled = canPost
-            tvRecord?.isEnabled = canPost
-            tvRecord?.alpha = if (canPost) 1f else 0.35f
-            tvPick?.alpha = if (canPost) 1f else 0.35f
-            if (!canPost) etMessage?.setText("")
-            // show members count
-            chatRef.get().addOnSuccessListener { doc ->
-                val parts = (doc.get("participants") as? List<*>)?.size ?: 0
-                val base = chatTitle
-                tvTitle?.text = "$base · $parts مشترك"
+
+    private fun confirmDeleteMessage(message: Message) {
+        val me = auth.currentUser?.uid ?: return
+        // Own messages: always. Channel/group admin: any message.
+        val canDelete = message.senderId == me || isAdmin
+        if (!canDelete) {
+            Toast.makeText(this, R.string.cannot_delete_message, Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (message.id.isEmpty()) return
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.delete_message)
+            .setMessage(R.string.delete_message_confirm)
+            .setPositiveButton(R.string.delete) { _, _ ->
+                messagesRef.document(message.id).delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(this, R.string.message_deleted, Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+                    }
             }
-        } else if (chatType == "group") {
-            chatRef.get().addOnSuccessListener { doc ->
-                val parts = (doc.get("participants") as? List<*>)?.size ?: 0
-                tvTitle?.text = "$chatTitle · $parts أعضاء"
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun confirmDeleteChat() {
+        val me = auth.currentUser?.uid ?: return
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.delete_chat)
+            .setMessage(R.string.delete_chat_confirm)
+            .setPositiveButton(R.string.delete) { _, _ ->
+                deleteOrLeaveChat(me)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun deleteOrLeaveChat(myUid: String) {
+        chatRef.get().addOnSuccessListener { doc ->
+            if (!doc.exists()) {
+                finish()
+                return@addOnSuccessListener
+            }
+            val type = doc.getString("type") ?: "direct"
+            val participants = (doc.get("participants") as? List<*>)?.map { it.toString() }?.toMutableList()
+                ?: mutableListOf()
+            val admins = (doc.get("admins") as? List<*>)?.map { it.toString() } ?: emptyList()
+
+            when {
+                type == "direct" -> {
+                    // Delete chat document for both (simple 1:1)
+                    deleteChatFully()
+                }
+                type == "channel" || type == "group" -> {
+                    val isOwner = myUid in admins || participants.firstOrNull() == myUid
+                    if (isOwner && participants.size <= 1) {
+                        deleteChatFully()
+                    } else {
+                        // Leave: remove from participants/admins
+                        participants.remove(myUid)
+                        val newAdmins = admins.filter { it != myUid }
+                        chatRef.update(
+                            mapOf(
+                                "participants" to participants,
+                                "admins" to newAdmins
+                            )
+                        ).addOnSuccessListener {
+                            Toast.makeText(this, R.string.left_chat, Toast.LENGTH_SHORT).show()
+                            finish()
+                        }.addOnFailureListener { e ->
+                            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+                else -> deleteChatFully()
             }
         }
     }
 
-    private fun guardPostOrToast(): Boolean {
-        if (canPostInThisChat()) return true
-        Toast.makeText(this, R.string.channel_readonly_hint, Toast.LENGTH_SHORT).show()
-        return false
-    }
-
-
-    private fun showManageAdminsDialog() {
-        chatRef.get().addOnSuccessListener { doc ->
-            val participants = (doc.get("participants") as? List<*>)?.map { it.toString() } ?: emptyList()
-            if (participants.isEmpty()) {
-                Toast.makeText(this, "لا يوجد أعضاء", Toast.LENGTH_SHORT).show()
-                return@addOnSuccessListener
+    private fun deleteChatFully() {
+        // Delete messages then chat
+        messagesRef.get().addOnSuccessListener { snap ->
+            val batch = db.batch()
+            for (d in snap.documents) {
+                batch.delete(d.reference)
             }
-            val admins = (doc.get("admins") as? List<*>)?.map { it.toString() }?.toMutableList()
-                ?: mutableListOf()
-
-            // Load display names one-by-one (safer than whereIn limits)
-            val names = mutableMapOf<String, String>()
-            var pending = participants.size
-            fun maybeShow() {
-                if (pending > 0) return
-                val labels = participants.map { uid ->
-                    val tag = if (uid in admins) " ⭐" else ""
-                    (names[uid] ?: uid.take(6)) + tag
-                }.toTypedArray()
-                val checked = BooleanArray(participants.size) { participants[it] in admins }
-                androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle(R.string.manage_admins)
-                    .setMultiChoiceItems(labels, checked) { _, which, isChecked ->
-                        val uid = participants[which]
-                        if (isChecked) {
-                            if (uid !in admins) admins.add(uid)
-                        } else {
-                            if (admins.size > 1) admins.remove(uid)
-                            else {
-                                checked[which] = true
-                                Toast.makeText(this, R.string.keep_one_admin, Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                    .setPositiveButton(R.string.save_changes) { _, _ ->
-                        chatRef.update("admins", admins)
-                            .addOnSuccessListener {
-                                val me = auth.currentUser?.uid
-                                isAdmin = me != null && (me in admins)
-                                applyChannelPermissions()
-                                Toast.makeText(this, R.string.admins_updated, Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
-            }
-            for (uid in participants) {
-                db.collection("users").document(uid).get()
-                    .addOnSuccessListener { snap ->
-                        val u = snap.toObject(UserProfile::class.java)
-                        names[uid] = u?.bestName() ?: uid.take(6)
-                        pending--
-                        maybeShow()
-                    }
-                    .addOnFailureListener {
-                        names[uid] = uid.take(6)
-                        pending--
-                        maybeShow()
-                    }
-            }
+            batch.delete(chatRef)
+            batch.commit()
+                .addOnSuccessListener {
+                    Toast.makeText(this, R.string.chat_deleted, Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+                }
+        }.addOnFailureListener {
+            chatRef.delete().addOnCompleteListener { finish() }
         }
     }
 

@@ -15,7 +15,8 @@ class MessageAdapter(
     private val messages: MutableList<Message>,
     private val currentUserId: String,
     private val onPlayVoice: (String) -> Unit,
-    private val onViewTemporaryImage: (Message, Int) -> Unit
+    private val onViewTemporaryImage: (Message, Int) -> Unit,
+    private val onMessageLongClick: (Message) -> Unit = {}
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -49,18 +50,32 @@ class MessageAdapter(
         val timeText = message.timestamp?.let { timeFormat.format(it) } ?: ""
 
         when (holder) {
-            is SentViewHolder -> bindCommon(
-                message, timeText,
-                holder.text, holder.time, holder.image, holder.tempOverlay,
-                holder.voiceRow, holder.playVoice, holder.voiceDuration, position
-            )
-            is ReceivedViewHolder -> {
-                holder.name.text = message.senderName
+            is SentViewHolder -> {
                 bindCommon(
                     message, timeText,
                     holder.text, holder.time, holder.image, holder.tempOverlay,
-                    holder.voiceRow, holder.playVoice, holder.voiceDuration, position
+                    holder.voiceRow, holder.playVoice, holder.voiceDuration
                 )
+                holder.itemView.setOnLongClickListener {
+                    onMessageLongClick(message)
+                    true
+                }
+            }
+            is ReceivedViewHolder -> {
+                // Never show email — only display name/username style senderName already stored
+                val display = message.senderName
+                    .substringBefore("@")
+                    .ifBlank { "مستخدم" }
+                holder.name.text = display
+                bindCommon(
+                    message, timeText,
+                    holder.text, holder.time, holder.image, holder.tempOverlay,
+                    holder.voiceRow, holder.playVoice, holder.voiceDuration
+                )
+                holder.itemView.setOnLongClickListener {
+                    onMessageLongClick(message)
+                    true
+                }
             }
         }
     }
@@ -74,21 +89,22 @@ class MessageAdapter(
         tvTempOverlay: TextView,
         llVoiceRow: View,
         tvPlayVoice: TextView,
-        tvVoiceDuration: TextView,
-        position: Int
+        tvVoiceDuration: TextView
     ) {
-        tvTime.text = timeText
         tvText.visibility = View.GONE
         ivImage.visibility = View.GONE
         tvTempOverlay.visibility = View.GONE
         llVoiceRow.visibility = View.GONE
+        tvTime.text = timeText
 
         when (message.type) {
             "image" -> {
                 if (message.isTemporary && !message.viewed) {
                     tvTempOverlay.visibility = View.VISIBLE
                     tvTempOverlay.text = "👁 صورة مؤقتة - اضغط للمشاهدة"
-                    tvTempOverlay.setOnClickListener { onViewTemporaryImage(message, position) }
+                    tvTempOverlay.setOnClickListener {
+                        onViewTemporaryImage(message, messages.indexOf(message))
+                    }
                 } else if (message.isTemporary && message.viewed) {
                     tvTempOverlay.visibility = View.VISIBLE
                     tvTempOverlay.text = "✓ تمت مشاهدة الصورة"

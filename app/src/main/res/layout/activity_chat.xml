@@ -38,6 +38,16 @@
             android:textSize="17sp"
             android:fontFamily="sans-serif-medium"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvDeleteChat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🗑"
+            android:textSize="18sp"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
