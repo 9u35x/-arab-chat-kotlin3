@@ -42,7 +42,7 @@ class ChannelsActivity : AppCompatActivity() {
         tvEmpty = findViewById(R.id.tvEmptyChannels)
 
         rv.layoutManager = LinearLayoutManager(this)
-        adapter = ChatListAdapter(mutableListOf(), uid) { chat ->
+        adapter = ChatListAdapter(mutableListOf(), uid, onChatClick = { chat ->
             joinAndOpen(chat, uid)
         }
         rv.adapter = adapter
