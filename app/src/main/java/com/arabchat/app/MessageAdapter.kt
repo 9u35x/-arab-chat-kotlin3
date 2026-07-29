@@ -16,7 +16,8 @@ class MessageAdapter(
     private val currentUserId: String,
     private val onPlayVoice: (String) -> Unit,
     private val onViewTemporaryImage: (Message, Int) -> Unit,
-    private val onMessageLongClick: (Message) -> Unit = {}
+    private val onMessageLongClick: (Message) -> Unit = {},
+    private val onImageClick: (String) -> Unit = {}
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -62,10 +63,7 @@ class MessageAdapter(
                 }
             }
             is ReceivedViewHolder -> {
-                // Never show email — only display name/username style senderName already stored
-                val display = message.senderName
-                    .substringBefore("@")
-                    .ifBlank { "مستخدم" }
+                val display = message.senderName.substringBefore("@").ifBlank { "مستخدم" }
                 holder.name.text = display
                 bindCommon(
                     message, timeText,
@@ -95,28 +93,42 @@ class MessageAdapter(
         ivImage.visibility = View.GONE
         tvTempOverlay.visibility = View.GONE
         llVoiceRow.visibility = View.GONE
+        ivImage.setOnClickListener(null)
         tvTime.text = timeText
 
         when (message.type) {
             "image" -> {
+                val url = message.mediaUrl
                 if (message.isTemporary && !message.viewed) {
                     tvTempOverlay.visibility = View.VISIBLE
-                    tvTempOverlay.text = "👁 صورة مؤقتة - اضغط للمشاهدة"
+                    tvTempOverlay.text = "صورة مؤقتة - اضغط للمشاهدة"
                     tvTempOverlay.setOnClickListener {
+                        if (url.isNotEmpty()) onImageClick(url)
                         onViewTemporaryImage(message, messages.indexOf(message))
                     }
                 } else if (message.isTemporary && message.viewed) {
                     tvTempOverlay.visibility = View.VISIBLE
-                    tvTempOverlay.text = "✓ تمت مشاهدة الصورة"
+                    tvTempOverlay.text = "تمت مشاهدة الصورة"
                 } else {
                     ivImage.visibility = View.VISIBLE
-                    Glide.with(ivImage.context).load(message.mediaUrl).into(ivImage)
+                    if (url.isNotEmpty()) {
+                        Glide.with(ivImage.context)
+                            .load(url)
+                            .centerCrop()
+                            .into(ivImage)
+                        ivImage.setOnClickListener { onImageClick(url) }
+                    } else {
+                        tvTempOverlay.visibility = View.VISIBLE
+                        tvTempOverlay.text = "صورة غير متوفرة"
+                    }
                 }
             }
             "voice" -> {
                 llVoiceRow.visibility = View.VISIBLE
                 tvVoiceDuration.text = formatDuration(message.durationMs)
-                tvPlayVoice.setOnClickListener { onPlayVoice(message.mediaUrl) }
+                tvPlayVoice.setOnClickListener {
+                    if (message.mediaUrl.isNotEmpty()) onPlayVoice(message.mediaUrl)
+                }
             }
             else -> {
                 tvText.visibility = View.VISIBLE

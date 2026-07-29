@@ -99,7 +99,8 @@ class ChatActivity : AppCompatActivity() {
             currentUser.uid,
             onPlayVoice = { url -> playVoice(url) },
             onViewTemporaryImage = { message, _ -> markTemporaryViewed(message) },
-            onMessageLongClick = { message -> confirmDeleteMessage(message) }
+            onMessageLongClick = { message -> confirmDeleteMessage(message) },
+            onImageClick = { url -> showFullImage(url) }
         )
         rvMessages.adapter = adapter
 
@@ -331,14 +332,43 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun playVoice(url: String) {
-        if (url.isEmpty()) return
-        mediaPlayer?.release()
-        mediaPlayer = MediaPlayer().apply {
-            setDataSource(url)
-            setOnPreparedListener { it.start() }
-            setOnCompletionListener { it.release() }
-            prepareAsync()
+        if (url.isEmpty()) {
+            Toast.makeText(this, "لا يوجد ملف صوتي", Toast.LENGTH_SHORT).show()
+            return
         }
+        try {
+            mediaPlayer?.release()
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(url)
+                setOnPreparedListener { it.start() }
+                setOnErrorListener { _, _, _ ->
+                    Toast.makeText(this@ChatActivity, "فشل تشغيل الصوت", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                setOnCompletionListener {
+                    it.release()
+                    mediaPlayer = null
+                }
+                prepareAsync()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "فشل تشغيل الصوت: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun showFullImage(url: String) {
+        if (url.isEmpty()) return
+        val imageView = android.widget.ImageView(this).apply {
+            adjustViewBounds = true
+            scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+            setPadding(16, 16, 16, 16)
+            setBackgroundColor(android.graphics.Color.BLACK)
+        }
+        com.bumptech.glide.Glide.with(this).load(url).into(imageView)
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(imageView)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     private fun markTemporaryViewed(message: Message) {
