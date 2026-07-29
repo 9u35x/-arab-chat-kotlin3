@@ -115,6 +115,8 @@ class MessageAdapter(
                         Glide.with(ivImage.context)
                             .load(url)
                             .centerCrop()
+                            .placeholder(android.R.color.darker_gray)
+                            .error(android.R.color.holo_red_dark)
                             .into(ivImage)
                         ivImage.setOnClickListener { onImageClick(url) }
                     } else {
@@ -125,7 +127,8 @@ class MessageAdapter(
             }
             "voice" -> {
                 llVoiceRow.visibility = View.VISIBLE
-                tvVoiceDuration.text = formatDuration(message.durationMs)
+                val dur = if (message.durationMs > 0) message.durationMs else 1000L
+                tvVoiceDuration.text = formatDuration(dur)
                 tvPlayVoice.setOnClickListener {
                     if (message.mediaUrl.isNotEmpty()) onPlayVoice(message.mediaUrl)
                 }

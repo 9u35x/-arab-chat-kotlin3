@@ -357,14 +357,21 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun showFullImage(url: String) {
-        if (url.isEmpty()) return
-        val imageView = android.widget.ImageView(this).apply {
-            adjustViewBounds = true
-            scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
-            setPadding(16, 16, 16, 16)
-            setBackgroundColor(android.graphics.Color.BLACK)
+        if (url.isEmpty()) {
+            Toast.makeText(this, "رابط الصورة فارغ", Toast.LENGTH_SHORT).show()
+            return
         }
-        com.bumptech.glide.Glide.with(this).load(url).into(imageView)
+        val width = (resources.displayMetrics.widthPixels * 0.92).toInt()
+        val height = (resources.displayMetrics.heightPixels * 0.55).toInt()
+        val imageView = android.widget.ImageView(this).apply {
+            layoutParams = android.widget.FrameLayout.LayoutParams(width, height)
+            scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+            setBackgroundColor(android.graphics.Color.BLACK)
+            setPadding(8, 8, 8, 8)
+        }
+        com.bumptech.glide.Glide.with(this)
+            .load(url)
+            .into(imageView)
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setView(imageView)
             .setPositiveButton(android.R.string.ok, null)
