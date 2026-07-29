@@ -17,7 +17,8 @@ class MessageAdapter(
     private val onPlayVoice: (String) -> Unit,
     private val onViewTemporaryImage: (Message, Int) -> Unit,
     private val onMessageLongClick: (Message) -> Unit = {},
-    private val onImageClick: (String) -> Unit = {}
+    private val onImageClick: (String) -> Unit = {},
+    private val senderNames: Map<String, String> = emptyMap()
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -63,8 +64,7 @@ class MessageAdapter(
                 }
             }
             is ReceivedViewHolder -> {
-                val display = message.senderName.substringBefore("@").ifBlank { "مستخدم" }
-                holder.name.text = display
+                holder.name.text = displayNameFor(message)
                 bindCommon(
                     message, timeText,
                     holder.text, holder.time, holder.image, holder.tempOverlay,
@@ -138,6 +138,18 @@ class MessageAdapter(
                 tvText.text = message.text
             }
         }
+    }
+
+
+    private fun displayNameFor(message: Message): String {
+        senderNames[message.senderId]?.let { return it }
+        val raw = message.senderName.substringBefore("@").trim()
+        if (raw.isNotBlank() && raw != "مستخدم" && "@" !in message.senderName) return raw
+        if (raw.isNotBlank() && "@" in message.senderName) {
+            // was email — hide it
+            return "مستخدم"
+        }
+        return raw.ifBlank { "مستخدم" }
     }
 
     override fun getItemCount(): Int = messages.size

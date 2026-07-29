@@ -12,6 +12,9 @@ import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import android.widget.ImageView
+import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,6 +34,9 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var chatId: String
     private lateinit var chatTitle: String
     private var chatType: String = "direct"
+    private var cachedSenderName: String? = null
+    private val senderNameCache = mutableMapOf<String, String>()
+    private var peerUid: String? = null
     private var otherUserId: String? = null
     private var isAdmin: Boolean = false
     private var isMember: Boolean = true
@@ -89,6 +95,7 @@ class ChatActivity : AppCompatActivity() {
         val tvPickImage: TextView = findViewById(R.id.tvPickImage)
         val tvRecordVoice: TextView = findViewById(R.id.tvRecordVoice)
         tvTitle.text = chatTitle
+        prefetchOwnName()
 
         val layoutManager = LinearLayoutManager(this)
         layoutManager.stackFromEnd = true
@@ -100,7 +107,8 @@ class ChatActivity : AppCompatActivity() {
             onPlayVoice = { url -> playVoice(url) },
             onViewTemporaryImage = { message, _ -> markTemporaryViewed(message) },
             onMessageLongClick = { message -> confirmDeleteMessage(message) },
-            onImageClick = { url -> showFullImage(url) }
+            onImageClick = { url -> showFullImage(url) },
+            senderNames = senderNameCache
         )
         rvMessages.adapter = adapter
 
@@ -127,6 +135,14 @@ class ChatActivity : AppCompatActivity() {
         }
         chatRef.get().addOnSuccessListener { doc ->
             chatType = doc.getString("type") ?: "direct"
+            val parts = (doc.get("participants") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+            if (chatType == "direct") {
+                loadPeerHeader(parts)
+            } else {
+                val channelName = doc.getString("name") ?: chatTitle
+                findViewById<TextView>(R.id.tvChatTitle).text = channelName
+                chatTitle = channelName
+            }
             val participants = (doc.get("participants") as? List<*>)?.map { it.toString() } ?: emptyList()
             val admins = (doc.get("admins") as? List<*>)?.map { it.toString() } ?: emptyList()
             val myUid = currentUser.uid
@@ -180,6 +196,7 @@ class ChatActivity : AppCompatActivity() {
                 val messages = snapshot.documents.mapNotNull { doc ->
                     doc.toObject(Message::class.java)?.also { it.id = doc.id }
                 }
+                resolveSenderNames(messages)
                 adapter.submitList(messages)
                 if (messages.isNotEmpty()) {
                     rvMessages.scrollToPosition(messages.size - 1)
@@ -194,20 +211,91 @@ class ChatActivity : AppCompatActivity() {
         mediaPlayer = null
     }
 
-
-    private var cachedSenderName: String? = null
-
     private fun currentSenderName(): String {
         val user = auth.currentUser ?: return "مستخدم"
         if (user.isAnonymous) return "ضيف"
         cachedSenderName?.let { return it }
+        // prefetch async
         db.collection("users").document(user.uid).get()
             .addOnSuccessListener { snap ->
                 val profile = snap.toObject(UserProfile::class.java)
                 val name = profile?.bestName()?.takeIf { it.isNotBlank() && it != "مستخدم" }
-                if (name != null) cachedSenderName = name
+                if (name != null) {
+                    cachedSenderName = name
+                    senderNameCache[user.uid] = name
+                }
             }
         return cachedSenderName ?: "مستخدم"
+    }
+
+    private fun prefetchOwnName() {
+        val user = auth.currentUser ?: return
+        if (user.isAnonymous) {
+            cachedSenderName = "ضيف"
+            return
+        }
+        db.collection("users").document(user.uid).get()
+            .addOnSuccessListener { snap ->
+                val profile = snap.toObject(UserProfile::class.java)
+                val name = profile?.bestName()?.takeIf { it.isNotBlank() && it != "مستخدم" }
+                if (name != null) {
+                    cachedSenderName = name
+                    senderNameCache[user.uid] = name
+                }
+            }
+    }
+
+    private fun loadPeerHeader(participants: List<String>) {
+        val me = auth.currentUser?.uid ?: return
+        val other = participants.firstOrNull { it != me } ?: return
+        peerUid = other
+        db.collection("users").document(other).get()
+            .addOnSuccessListener { snap ->
+                val profile = snap.toObject(UserProfile::class.java)
+                val name = profile?.bestName()?.takeIf { it.isNotBlank() && it != "مستخدم" }
+                    ?: "مستخدم"
+                senderNameCache[other] = name
+                findViewById<TextView>(R.id.tvChatTitle).text = name
+                chatTitle = name
+                val subtitle = findViewById<TextView?>(R.id.tvChatSubtitle)
+                if (!profile?.username.isNullOrBlank()) {
+                    subtitle?.visibility = View.VISIBLE
+                    subtitle?.text = "@${profile?.username}"
+                }
+                showPeerAvatar(profile?.avatarUrl, name)
+                adapter.notifyDataSetChanged()
+            }
+    }
+
+    private fun showPeerAvatar(url: String?, name: String) {
+        val iv = findViewById<ImageView?>(R.id.ivPeerAvatar) ?: return
+        val tv = findViewById<TextView?>(R.id.tvPeerAvatar) ?: return
+        if (!url.isNullOrEmpty()) {
+            iv.visibility = View.VISIBLE
+            tv.visibility = View.GONE
+            Glide.with(this).load(url).circleCrop().into(iv)
+        } else {
+            iv.visibility = View.GONE
+            tv.visibility = View.VISIBLE
+            tv.text = if (name.isNotEmpty()) name.take(1).uppercase() else "?"
+        }
+    }
+
+    private fun resolveSenderNames(messages: List<Message>) {
+        val me = auth.currentUser?.uid
+        val missing = messages.map { it.senderId }.toSet()
+            .filter { it.isNotEmpty() && it != me && !senderNameCache.containsKey(it) }
+        for (uid in missing) {
+            db.collection("users").document(uid).get()
+                .addOnSuccessListener { snap ->
+                    val profile = snap.toObject(UserProfile::class.java)
+                    val name = profile?.bestName()?.takeIf { it.isNotBlank() && it != "مستخدم" }
+                    if (name != null) {
+                        senderNameCache[uid] = name
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+        }
     }
 
     private fun sendTextMessage() {
