@@ -363,7 +363,8 @@ class ChatActivity : AppCompatActivity() {
     private fun confirmDeleteMessage(message: Message) {
         val me = auth.currentUser?.uid ?: return
         // Own messages: always. Channel/group admin: any message.
-        val canDelete = message.senderId == me || isAdmin
+        // يمكن حذف رسائلك فقط (المشرف يحذف أيضاً في القناة/المجموعة)
+        val canDelete = message.senderId == me || (isAdmin && (chatType == "channel" || chatType == "group"))
         if (!canDelete) {
             Toast.makeText(this, R.string.cannot_delete_message, Toast.LENGTH_SHORT).show()
             return
