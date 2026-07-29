@@ -54,7 +54,7 @@ class NewChatActivity : AppCompatActivity() {
             else allUsers.filter {
                 it.bestName().contains(q, true) ||
                     it.username.contains(q, true) ||
-                    (it.email?.contains(q, true) == true)
+                    (it.username.contains(q, true))
             }
             adapter.submitList(filtered)
         })

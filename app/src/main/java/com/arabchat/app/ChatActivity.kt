@@ -194,13 +194,22 @@ class ChatActivity : AppCompatActivity() {
         mediaPlayer = null
     }
 
+
+    private var cachedSenderName: String? = null
+
     private fun currentSenderName(): String {
-        val user = auth.currentUser
-        if (user == null) return "مستخدم"
+        val user = auth.currentUser ?: return "مستخدم"
         if (user.isAnonymous) return "ضيف"
-        // Never store full email as display name
-        return user.email?.substringBefore("@") ?: "مستخدم"
+        cachedSenderName?.let { return it }
+        db.collection("users").document(user.uid).get()
+            .addOnSuccessListener { snap ->
+                val profile = snap.toObject(UserProfile::class.java)
+                val name = profile?.bestName()?.takeIf { it.isNotBlank() && it != "مستخدم" }
+                if (name != null) cachedSenderName = name
+            }
+        return cachedSenderName ?: "مستخدم"
     }
+
 
     private fun sendTextMessage() {
         val text = etMessage.text.toString().trim()

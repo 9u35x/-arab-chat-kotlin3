@@ -103,14 +103,12 @@ class ProfileActivity : AppCompatActivity() {
                     tvProfileName.text = display
                     tvProfileAvatar.text = if (display.isNotEmpty()) display.take(1).uppercase() else "?"
                     val parts = mutableListOf<String>()
-                    val uname = profile?.username.orEmpty()
-                    if (uname.isNotBlank()) parts.add("@$uname")
+                    if (!profile?.username.isNullOrBlank()) parts.add("@${profile?.username}")
                     when (profile?.gender) {
                         "male" -> parts.add(getString(R.string.gender_male))
                         "female" -> parts.add(getString(R.string.gender_female))
                     }
-                    val bio = profile?.bio.orEmpty()
-                    if (bio.isNotBlank()) parts.add(bio)
+                    if (!profile?.bio.isNullOrBlank()) parts.add(profile!!.bio)
                     tvProfileSubtitle.text = parts.joinToString(" · ")
                     showAvatar(profile?.avatarUrl)
                 }
@@ -142,7 +140,7 @@ class ProfileActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        tvProfileSubtitle.text = user.email ?: getString(R.string.guest_label)
+        tvProfileSubtitle.text = getString(R.string.my_profile) // never show email
         tvProfileAvatar.text = "?"
 
         loadOwnProfile(user.uid)
@@ -170,7 +168,6 @@ class ProfileActivity : AppCompatActivity() {
                 val profile = snapshot.toObject(UserProfile::class.java)
                 val display = profile?.displayName?.takeIf { it.isNotBlank() }
                     ?: profile?.username?.takeIf { it.isNotBlank() }
-                    ?: auth.currentUser?.email?.substringBefore("@")
                     ?: getString(R.string.guest_label)
 
                 etDisplayName.setText(profile?.displayName ?: display)
@@ -187,9 +184,9 @@ class ProfileActivity : AppCompatActivity() {
                 showAvatar(currentAvatarUrl)
             }
             .addOnFailureListener {
-                val fallback = auth.currentUser?.email?.substringBefore("@") ?: getString(R.string.guest_label)
-                etDisplayName.setText(fallback)
-                tvProfileAvatar.text = fallback.take(1).uppercase()
+                val fallback = getString(R.string.guest_label)
+                etDisplayName.setText("")
+                tvProfileAvatar.text = "?"
             }
     }
 

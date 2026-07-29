@@ -54,9 +54,9 @@ class SearchActivity : AppCompatActivity() {
         rvUsers.adapter = userAdapter
 
         rvChannels.layoutManager = LinearLayoutManager(this)
-        channelAdapter = ChatListAdapter(mutableListOf(), uid, onChatClick = { chat ->
+        channelAdapter = ChatListAdapter(mutableListOf(), uid) { chat ->
             joinAndOpenChannel(chat, uid)
-        })
+        }
         rvChannels.adapter = channelAdapter
 
         loadData(uid)
@@ -123,7 +123,7 @@ class SearchActivity : AppCompatActivity() {
                         "type" to "direct",
                         "participants" to listOf(myUid, other.uid),
                         "participantNames" to mapOf(
-                            myUid to (auth.currentUser?.email?.substringBefore("@") ?: "أنا"),
+                            myUid to "أنا",
                             other.uid to other.bestName()
                         ),
                         "lastMessage" to "",
