@@ -59,5 +59,10 @@
             android:name=".SearchActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".FullImageActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+
     </application>
 </manifest>
