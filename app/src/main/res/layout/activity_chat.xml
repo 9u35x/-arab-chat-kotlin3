@@ -44,9 +44,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/delete"
-            android:textColor="@color/errorRed"
+            android:textColor="#FF5C7A"
             android:textSize="13sp"
-            android:textSize="18sp"
             android:padding="8dp"
             android:clickable="true"
             android:focusable="true" />

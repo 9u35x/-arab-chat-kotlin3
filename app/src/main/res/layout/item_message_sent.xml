@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="48dp"
+    android:gravity="end"
+    android:paddingStart="56dp"
     android:paddingEnd="12dp"
     android:paddingTop="4dp"
     android:paddingBottom="4dp">
@@ -11,27 +12,22 @@
         android:id="@+id/bubbleRoot"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
         android:orientation="vertical"
         android:background="@drawable/bg_bubble_sent"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="6dp"
-        android:maxWidth="280dp">
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/tvMessageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/textOnAccent"
+            android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:visibility="gone" />
 
         <ImageView
             android:id="@+id/ivMessageImage"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
             android:scaleType="centerCrop"
             android:visibility="gone"
             android:contentDescription="@null" />
@@ -40,7 +36,7 @@
             android:id="@+id/tvTemporaryOverlay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/textOnAccent"
+            android:textColor="#FFFFFF"
             android:textSize="13sp"
             android:visibility="gone" />
 
@@ -56,16 +52,16 @@
                 android:id="@+id/tvPlayVoice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="▶"
-                android:textColor="@color/textOnAccent"
-                android:textSize="18sp"
+                android:text="PLAY"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
                 android:padding="6dp" />
 
             <TextView
                 android:id="@+id/tvVoiceDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/textOnAccent"
+                android:textColor="#FFFFFF"
                 android:textSize="13sp"
                 android:layout_marginStart="6dp" />
         </LinearLayout>
@@ -79,4 +75,4 @@
             android:textColor="#CCFFFFFF"
             android:textSize="10sp" />
     </LinearLayout>
-</FrameLayout>
+</LinearLayout>
