@@ -197,9 +197,6 @@ class ChatActivity : AppCompatActivity() {
 
     private var cachedSenderName: String? = null
 
-
-    private var cachedSenderName: String? = null
-
     private fun currentSenderName(): String {
         val user = auth.currentUser ?: return "مستخدم"
         if (user.isAnonymous) return "ضيف"
@@ -212,10 +209,6 @@ class ChatActivity : AppCompatActivity() {
             }
         return cachedSenderName ?: "مستخدم"
     }
-
-        return cachedSenderName ?: "مستخدم"
-    }
-
 
     private fun sendTextMessage() {
         val text = etMessage.text.toString().trim()
