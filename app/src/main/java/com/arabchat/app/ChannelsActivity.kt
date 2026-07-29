@@ -44,7 +44,7 @@ class ChannelsActivity : AppCompatActivity() {
         rv.layoutManager = LinearLayoutManager(this)
         adapter = ChatListAdapter(mutableListOf(), uid, onChatClick = { chat ->
             joinAndOpen(chat, uid)
-        }
+        })
         rv.adapter = adapter
 
         tvBack.setOnClickListener { finish() }

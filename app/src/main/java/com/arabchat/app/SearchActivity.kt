@@ -56,7 +56,7 @@ class SearchActivity : AppCompatActivity() {
         rvChannels.layoutManager = LinearLayoutManager(this)
         channelAdapter = ChatListAdapter(mutableListOf(), uid, onChatClick = { chat ->
             joinAndOpenChannel(chat, uid)
-        }
+        })
         rvChannels.adapter = channelAdapter
 
         loadData(uid)
