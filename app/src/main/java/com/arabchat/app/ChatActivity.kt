@@ -37,6 +37,8 @@ class ChatActivity : AppCompatActivity() {
     private var cachedSenderName: String? = null
     private val senderNameCache = mutableMapOf<String, String>()
     private var peerUid: String? = null
+    private var participantIds: List<String> = emptyList()
+    private var adminIds: List<String> = emptyList()
     private var otherUserId: String? = null
     private var isAdmin: Boolean = false
     private var isMember: Boolean = true
@@ -123,31 +125,38 @@ class ChatActivity : AppCompatActivity() {
         tvDeleteChat?.setOnClickListener { confirmDeleteChat() }
         tvSend.setOnClickListener { sendTextMessage() }
 
-        val openPeerProfile = View.OnClickListener {
+        tvTitle.setOnClickListener {
             val profileIntent = android.content.Intent(this, ProfileActivity::class.java)
             profileIntent.putExtra("name", chatTitle)
             val isGroupLike = chatType == "group" || chatType == "channel"
             profileIntent.putExtra("isGroup", isGroupLike)
-            val peer = otherUserId ?: peerUid
-            if (!isGroupLike && peer != null) {
-                profileIntent.putExtra("uid", peer)
-                profileIntent.putExtra("userId", peer)
+            if (!isGroupLike && otherUserId != null) {
+                profileIntent.putExtra("userId", otherUserId)
             }
             startActivity(profileIntent)
         }
-        tvTitle.setOnClickListener(openPeerProfile)
-        findViewById<View?>(R.id.ivPeerAvatar)?.setOnClickListener(openPeerProfile)
-        findViewById<View?>(R.id.tvPeerAvatar)?.setOnClickListener(openPeerProfile)
-
         chatRef.get().addOnSuccessListener { doc ->
             chatType = doc.getString("type") ?: "direct"
             val parts = (doc.get("participants") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+            val admins = (doc.get("admins") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+            participantIds = parts
+            adminIds = admins
+            val me = currentUser.uid
+            isAdmin = me in admins || (chatType == "channel" && parts.firstOrNull() == me)
             if (chatType == "direct") {
                 loadPeerHeader(parts)
             } else {
                 val channelName = doc.getString("name") ?: chatTitle
                 findViewById<TextView>(R.id.tvChatTitle).text = channelName
                 chatTitle = channelName
+                val sub = findViewById<TextView?>(R.id.tvChatSubtitle)
+                sub?.visibility = android.view.View.VISIBLE
+                sub?.text = getString(R.string.members_count, parts.size)
+                sub?.setOnClickListener { showChannelMembers() }
+                findViewById<TextView>(R.id.tvChatTitle).setOnClickListener { showChannelMembers() }
+            }
+            if (chatType == "channel") {
+                applyChannelPermissions()
             }
             val participants = (doc.get("participants") as? List<*>)?.map { it.toString() } ?: emptyList()
             val admins = (doc.get("admins") as? List<*>)?.map { it.toString() } ?: emptyList()
@@ -587,5 +596,50 @@ class ChatActivity : AppCompatActivity() {
             chatRef.delete().addOnCompleteListener { finish() }
         }
     }
+
+
+    private fun showChannelMembers() {
+        if (participantIds.isEmpty()) {
+            Toast.makeText(this, R.string.no_members, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val names = mutableMapOf<String, String>()
+        var pending = participantIds.size
+        val show = {
+            val labels = participantIds.map { uid ->
+                val n = names[uid] ?: uid.take(6)
+                val tag = if (uid in adminIds) " 👑" else ""
+                n + tag
+            }.toTypedArray()
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(getString(R.string.channel_members_title, participantIds.size))
+                .setItems(labels, null)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
+        for (uid in participantIds) {
+            if (uid in senderNameCache) {
+                names[uid] = senderNameCache[uid]!!
+                pending--
+                if (pending <= 0) show()
+            } else {
+                db.collection("users").document(uid).get()
+                    .addOnSuccessListener { snap ->
+                        val p = snap.toObject(UserProfile::class.java)
+                        val n = p?.bestName() ?: uid.take(6)
+                        names[uid] = n
+                        senderNameCache[uid] = n
+                        pending--
+                        if (pending <= 0) show()
+                    }
+                    .addOnFailureListener {
+                        names[uid] = uid.take(6)
+                        pending--
+                        if (pending <= 0) show()
+                    }
+            }
+        }
+    }
+
 
 }

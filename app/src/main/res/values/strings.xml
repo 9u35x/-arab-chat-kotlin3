@@ -121,4 +121,7 @@
     <string name="user_blocked">تم حظر المستخدم</string>
     <string name="user_unblocked">تم إلغاء الحظر</string>
     <string name="no_blocked_users">لا يوجد مستخدمون محظورون</string>
+    <string name="members_count">%1$d عضو</string>
+    <string name="channel_members_title">الأعضاء (%1$d)</string>
+    <string name="no_members">لا يوجد أعضاء</string>
 </resources>
