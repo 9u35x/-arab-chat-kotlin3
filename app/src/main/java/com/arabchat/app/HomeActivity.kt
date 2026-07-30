@@ -109,15 +109,11 @@ class HomeActivity : AppCompatActivity() {
             .whereArrayContains("participants", uid)
             .addSnapshotListener { snapshot, error ->
                 if (error != null || snapshot == null) return@addSnapshotListener
-                allChats = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(Chat::class.java)?.also { c ->
-                        c.id = doc.id
-                    }
-                }.sortedWith(
-                    compareByDescending<Chat> { it.unreadFor(uid)
-                UnreadStore.syncFromChats(this@HomeActivity, uid, allChats) > 0 }
-                        .thenByDescending { it.lastMessageTime?.time ?: 0L }
-                )
+                val mappedChats = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(Chat::class.java)?.also { c -> c.id = doc.id }
+                }
+                UnreadStore.syncFromChats(this@HomeActivity, uid, mappedChats)
+                allChats = mappedChats.sortedByDescending { it.lastMessageTime?.time ?: 0L }
 
                 // Notify for new last messages
                 val me = uid
