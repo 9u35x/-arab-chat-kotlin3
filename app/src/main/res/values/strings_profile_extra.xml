@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="save">حفظ</string>
+    <string name="settings">الإعدادات</string>
+    <string name="logout">تسجيل الخروج</string>
+    <string name="change_photo">تغيير الصورة</string>
+    <string name="no_bio">لا توجد سيرة ذاتية</string>
+    <string name="no_username">لا يوجد اسم مستخدم</string>
+</resources>

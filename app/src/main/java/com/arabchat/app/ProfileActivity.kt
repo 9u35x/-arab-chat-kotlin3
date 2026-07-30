@@ -95,6 +95,7 @@ class ProfileActivity : AppCompatActivity() {
         val nameExtra = intent.getStringExtra("name").orEmpty()
         val isGroup = intent.getBooleanExtra("isGroup", false)
 
+        // Only own profile when no uid is passed
         if (targetUid.isNullOrBlank()) {
             setupOwnProfileMode()
         } else {
@@ -110,8 +111,11 @@ class ProfileActivity : AppCompatActivity() {
         layoutOwnFields.visibility = View.GONE
         layoutContactFields.visibility = View.VISIBLE
         tvChangePhoto.visibility = View.GONE
-        tvProfileName.visibility = View.GONE
         tvProfileSubtitle.visibility = View.GONE
+
+        // Big name under avatar (modern look)
+        tvProfileName.visibility = View.VISIBLE
+        tvProfileName.text = name.ifBlank { "…" }
 
         tvProfileTitle.text = getString(R.string.profile_title)
         tvContactName.text = name.ifBlank { "—" }
@@ -127,9 +131,15 @@ class ProfileActivity : AppCompatActivity() {
         db.collection("users").document(uid).get()
             .addOnSuccessListener { snapshot ->
                 val profile = snapshot.toObject(UserProfile::class.java)
-                val display = profile?.bestName() ?: name.ifBlank { "مستخدم" }
-                tvContactName.text = display
+                val display = profile?.bestName()?.takeIf { it.isNotBlank() && it != "مستخدم" }
+                    ?: name.ifBlank { "مستخدم" }
+
+                // Header name
+                tvProfileName.text = display
                 tvProfileAvatar.text = display.take(1).uppercase()
+
+                // Separate cards
+                tvContactName.text = display
 
                 val uname = profile?.username?.trim().orEmpty()
                 tvContactUsername.text = if (uname.isNotEmpty()) "@$uname" else getString(R.string.no_username)
@@ -166,7 +176,6 @@ class ProfileActivity : AppCompatActivity() {
         layoutContactFields.visibility = View.GONE
         tvChangePhoto.visibility = View.VISIBLE
         tvProfileName.visibility = View.GONE
-        // Never show email
         tvProfileSubtitle.visibility = View.GONE
 
         tvProfileTitle.text = getString(R.string.my_profile)
@@ -228,7 +237,7 @@ class ProfileActivity : AppCompatActivity() {
         if (!url.isNullOrEmpty()) {
             ivProfileAvatar.visibility = View.VISIBLE
             tvProfileAvatar.visibility = View.GONE
-            Glide.with(this).load(url).circleCrop().error(R.drawable.bg_avatar_circle).into(ivProfileAvatar)
+            Glide.with(this).load(url).circleCrop().into(ivProfileAvatar)
         } else {
             ivProfileAvatar.visibility = View.GONE
             tvProfileAvatar.visibility = View.VISIBLE
