@@ -179,6 +179,7 @@ class MessageAdapter(
     class SentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val text: TextView = view.findViewById(R.id.tvMessageText)
         val time: TextView = view.findViewById(R.id.tvMessageTime)
+            val status: TextView? = view.findViewById(R.id.tvMessageStatus)
         val image: ImageView = view.findViewById(R.id.ivMessageImage)
         val tempOverlay: TextView = view.findViewById(R.id.tvTemporaryOverlay)
         val voiceRow: View = view.findViewById(R.id.llVoiceRow)
