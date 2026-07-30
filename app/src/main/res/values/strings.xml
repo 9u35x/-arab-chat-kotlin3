@@ -124,4 +124,11 @@
     <string name="members_count">%1$d عضو</string>
     <string name="channel_members_title">الأعضاء (%1$d)</string>
     <string name="no_members">لا يوجد أعضاء</string>
+    <string name="change_channel_photo">تغيير صورة القناة</string>
+    <string name="channel_settings">إعدادات القناة</string>
+    <string name="share_channel">مشاركة القناة</string>
+    <string name="share_channel_text">انضم لقناة «%1$s» في دردشة العرب
+رمز القناة: %2$s</string>
+    <string name="channel_updated">تم تحديث القناة</string>
+    <string name="channel_members_short">الأعضاء</string>
 </resources>

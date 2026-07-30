@@ -8,6 +8,7 @@ data class Chat(
     val type: String = "direct", // "direct", "group", "channel"
     val name: String? = null,
     val description: String? = null,
+    val avatarUrl: String? = null,
     val participants: List<String> = emptyList(),
     val participantNames: Map<String, String> = emptyMap(),
     val admins: List<String> = emptyList(),
