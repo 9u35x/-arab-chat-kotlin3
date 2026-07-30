@@ -5,7 +5,7 @@ import java.util.Date
 
 data class Chat(
     var id: String = "",
-    val type: String = "direct", // "direct", "group", "channel"
+    val type: String = "direct",
     val name: String? = null,
     val description: String? = null,
     val avatarUrl: String? = null,
@@ -13,6 +13,7 @@ data class Chat(
     val participantNames: Map<String, String> = emptyMap(),
     val admins: List<String> = emptyList(),
     val lastMessage: String = "",
+    val unreadCounts: Map<String, Int> = emptyMap(),
     @ServerTimestamp
     val lastMessageTime: Date? = null
 ) {
@@ -27,6 +28,7 @@ data class Chat(
         }
     }
 
+    fun unreadFor(uid: String): Int = unreadCounts[uid] ?: 0
     fun isChannel(): Boolean = type == "channel"
     fun isGroup(): Boolean = type == "group"
 }

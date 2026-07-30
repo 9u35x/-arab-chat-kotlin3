@@ -1,5 +1,6 @@
 package com.arabchat.app
 
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +15,8 @@ import java.util.Locale
 class ChatListAdapter(
     private val chats: MutableList<Chat>,
     private val currentUid: String,
-    private val onChatClick: (Chat) -> Unit,
-    private val onChatLongClick: (Chat) -> Unit = {}
+    private val onChatLongClick: (Chat) -> Unit = {},
+    private val onChatClick: (Chat) -> Unit
 ) : RecyclerView.Adapter<ChatListAdapter.ChatViewHolder>() {
 
     private val timeFormat = SimpleDateFormat("hh:mm a", Locale("ar"))
@@ -31,6 +32,7 @@ class ChatListAdapter(
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val chat = chats[position]
         val title = chat.titleFor(currentUid)
+        val unread = chat.unreadFor(currentUid)
 
         holder.avatarLetter.visibility = View.VISIBLE
         holder.avatarLetter.text = if (title.isNotEmpty()) title.take(1).uppercase() else "?"
@@ -42,30 +44,35 @@ class ChatListAdapter(
             "group" -> "👥 "
             else -> ""
         }
-        holder.lastMessage.text = if (chat.lastMessage.isNotEmpty()) prefix + chat.lastMessage
-        else prefix + "لا توجد رسائل بعد"
-        holder.chatTime.text = chat.lastMessageTime?.let { timeFormat.format(it) } ?: ""
+        holder.lastMessage.text = prefix + chat.lastMessage
 
-        // Load other user avatar for direct chats
-        if (chat.type == "direct") {
-            val otherUid = chat.participants.firstOrNull { it != currentUid }
-            if (otherUid != null) {
-                val cached = avatarCache[otherUid]
-                if (cached != null) {
-                    bindAvatar(holder, cached)
-                } else if (!avatarCache.containsKey(otherUid)) {
-                    avatarCache[otherUid] = null // mark loading
-                    db.collection("users").document(otherUid).get()
-                        .addOnSuccessListener { snap ->
-                            val url = snap.getString("avatarUrl")
-                            avatarCache[otherUid] = url
-                            val pos = holder.adapterPosition
-                            if (pos != RecyclerView.NO_POSITION && chats.getOrNull(pos)?.id == chat.id) {
-                                bindAvatar(holder, url)
-                            } else {
-                                notifyDataSetChanged()
-                            }
-                        }
+        holder.time.text = chat.lastMessageTime?.let { timeFormat.format(it) } ?: ""
+
+        // Unread badge like WhatsApp
+        if (unread > 0) {
+            holder.unreadBadge.visibility = View.VISIBLE
+            holder.unreadBadge.text = if (unread > 99) "99+" else unread.toString()
+            holder.chatName.setTypeface(null, Typeface.BOLD)
+            holder.lastMessage.setTypeface(null, Typeface.BOLD)
+            holder.time.setTextColor(0xFF25D366.toInt())
+        } else {
+            holder.unreadBadge.visibility = View.GONE
+            holder.chatName.setTypeface(null, Typeface.NORMAL)
+            holder.lastMessage.setTypeface(null, Typeface.NORMAL)
+            holder.time.setTextColor(holder.itemView.context.getColor(R.color.textTertiaryDark))
+        }
+
+        // Avatar for direct / channel
+        when (chat.type) {
+            "direct" -> {
+                val other = chat.participants.firstOrNull { it != currentUid }
+                if (other != null) loadUserAvatar(other, holder)
+            }
+            "channel", "group" -> {
+                if (!chat.avatarUrl.isNullOrEmpty()) {
+                    holder.ivAvatar.visibility = View.VISIBLE
+                    holder.avatarLetter.visibility = View.GONE
+                    Glide.with(holder.itemView).load(chat.avatarUrl).circleCrop().into(holder.ivAvatar)
                 }
             }
         }
@@ -77,22 +84,33 @@ class ChatListAdapter(
         }
     }
 
-    private fun bindAvatar(holder: ChatViewHolder, url: String?) {
-        if (!url.isNullOrEmpty()) {
-            holder.ivAvatar.visibility = View.VISIBLE
-            holder.avatarLetter.visibility = View.GONE
-            Glide.with(holder.ivAvatar.context)
-                .load(url)
-                .circleCrop()
-                .into(holder.ivAvatar)
+    private fun loadUserAvatar(uid: String, holder: ChatViewHolder) {
+        val cached = avatarCache[uid]
+        if (cached != null) {
+            if (cached.isNotEmpty()) {
+                holder.ivAvatar.visibility = View.VISIBLE
+                holder.avatarLetter.visibility = View.GONE
+                Glide.with(holder.itemView).load(cached).circleCrop().into(holder.ivAvatar)
+            }
+            return
         }
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { snap ->
+                val url = snap.getString("avatarUrl").orEmpty()
+                avatarCache[uid] = url
+                if (url.isNotEmpty() && holder.bindingAdapterPosition != RecyclerView.NO_POSITION) {
+                    holder.ivAvatar.visibility = View.VISIBLE
+                    holder.avatarLetter.visibility = View.GONE
+                    Glide.with(holder.itemView).load(url).circleCrop().into(holder.ivAvatar)
+                }
+            }
     }
 
     override fun getItemCount(): Int = chats.size
 
-    fun submitList(newChats: List<Chat>) {
+    fun submitList(newList: List<Chat>) {
         chats.clear()
-        chats.addAll(newChats)
+        chats.addAll(newList)
         notifyDataSetChanged()
     }
 
@@ -101,6 +119,7 @@ class ChatListAdapter(
         val ivAvatar: ImageView = view.findViewById(R.id.ivAvatar)
         val chatName: TextView = view.findViewById(R.id.tvChatName)
         val lastMessage: TextView = view.findViewById(R.id.tvLastMessage)
-        val chatTime: TextView = view.findViewById(R.id.tvChatTime)
+        val time: TextView = view.findViewById(R.id.tvChatTime)
+        val unreadBadge: TextView = view.findViewById(R.id.tvUnreadBadge)
     }
 }

@@ -599,4 +599,33 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    private fun clearMyUnread() {
+        val me = auth.currentUser?.uid ?: return
+        chatRef.get().addOnSuccessListener { doc ->
+            val map = (doc.get("unreadCounts") as? Map<*, *>)
+                ?.mapKeys { it.key.toString() }
+                ?.mapValues { (it.value as? Number)?.toInt() ?: 0 }
+                ?.toMutableMap() ?: mutableMapOf()
+            map[me] = 0
+            chatRef.set(mapOf("unreadCounts" to map), com.google.firebase.firestore.SetOptions.merge())
+        }
+    }
+
+    private fun bumpUnreadForOthers() {
+        val me = auth.currentUser?.uid ?: return
+        chatRef.get().addOnSuccessListener { doc ->
+            val parts = (doc.get("participants") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+            val map = (doc.get("unreadCounts") as? Map<*, *>)
+                ?.mapKeys { it.key.toString() }
+                ?.mapValues { (it.value as? Number)?.toInt() ?: 0 }
+                ?.toMutableMap() ?: mutableMapOf()
+            for (uid in parts) {
+                if (uid != me) {
+                    map[uid] = (map[uid] ?: 0) + 1
+                }
+            }
+            chatRef.set(mapOf("unreadCounts" to map), com.google.firebase.firestore.SetOptions.merge())
+        }
+    }
+
 }
