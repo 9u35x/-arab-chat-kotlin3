@@ -44,7 +44,6 @@ class ChatActivity : AppCompatActivity() {
     private var channelDescription: String? = null
     private var pendingChannelPhoto: Boolean = false
     private var otherUserId: String? = null
-    private var isAdmin: Boolean = false
     private var isMember: Boolean = true
 
     private var listenerRegistration: ListenerRegistration? = null
@@ -507,20 +506,6 @@ class ChatActivity : AppCompatActivity() {
         messagesRef.document(message.id).update("viewed", true)
     }
 
-    private fun applyChannelPermissions() {
-        if (chatType != "channel") return
-        val etMessage = findViewById<android.widget.EditText>(R.id.etMessage)
-        val tvSend = findViewById<android.view.View>(R.id.tvSend)
-        val tvPick = findViewById<android.view.View>(R.id.tvPickImage)
-        val canPost = isAdmin
-        etMessage?.isEnabled = canPost
-        etMessage?.hint = if (canPost) getString(R.string.message_hint) else getString(R.string.channel_readonly_hint)
-        tvSend?.isEnabled = canPost
-        tvPick?.isEnabled = canPost
-        if (!canPost) etMessage?.setText("")
-    }
-
-
     private fun confirmDeleteMessage(message: Message) {
         val me = auth.currentUser?.uid ?: return
         // Own messages: always. Channel/group admin: any message.
@@ -748,12 +733,16 @@ class ChatActivity : AppCompatActivity() {
 
     private fun applyChannelPermissions() {
         if (chatType != "channel") return
+        val etMessage = findViewById<android.widget.EditText?>(R.id.etMessage)
+        val tvSend = findViewById<android.view.View?>(R.id.tvSend)
+        val tvPick = findViewById<android.view.View?>(R.id.tvPickImage)
+        val tvRecord = findViewById<android.view.View?>(R.id.tvRecordVoice)
         val canPost = isAdmin
-        findViewById<android.widget.EditText?>(R.id.etMessage)?.hint =
-            if (canPost) getString(R.string.message_hint) else getString(R.string.channel_readonly_hint)
-        findViewById<android.view.View?>(R.id.tvSend)?.isEnabled = canPost
-        findViewById<android.view.View?>(R.id.tvPickImage)?.isEnabled = canPost
-        findViewById<android.view.View?>(R.id.tvRecordVoice)?.isEnabled = canPost
+        etMessage?.isEnabled = canPost
+        etMessage?.hint = if (canPost) getString(R.string.message_hint) else getString(R.string.channel_readonly_hint)
+        tvSend?.isEnabled = canPost
+        tvPick?.isEnabled = canPost
+        tvRecord?.isEnabled = canPost
     }
 
 
