@@ -54,7 +54,7 @@ class ChatListAdapter(
             holder.unreadBadge.text = if (unread > 99) "99+" else unread.toString()
             holder.chatName.setTypeface(null, Typeface.BOLD)
             holder.lastMessage.setTypeface(null, Typeface.BOLD)
-            holder.time.setTextColor(0xFF25D366.toInt())
+            holder.time.setTextColor(0xFF9B5CFF.toInt())
         } else {
             holder.unreadBadge.visibility = View.GONE
             holder.chatName.setTypeface(null, Typeface.NORMAL)

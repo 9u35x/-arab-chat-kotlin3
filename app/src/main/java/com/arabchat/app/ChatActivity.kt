@@ -500,6 +500,7 @@ class ChatActivity : AppCompatActivity() {
             .setPositiveButton(R.string.delete) { _, _ ->
                 messagesRef.document(message.id).delete()
                     .addOnSuccessListener {
+                bumpUnreadForOthers()
                         Toast.makeText(this, R.string.message_deleted, Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener { e ->
@@ -602,6 +603,7 @@ class ChatActivity : AppCompatActivity() {
     private fun clearMyUnread() {
         val me = auth.currentUser?.uid ?: return
         chatRef.get().addOnSuccessListener { doc ->
+            if (!doc.exists()) return@addOnSuccessListener
             val map = (doc.get("unreadCounts") as? Map<*, *>)
                 ?.mapKeys { it.key.toString() }
                 ?.mapValues { (it.value as? Number)?.toInt() ?: 0 }
@@ -614,6 +616,7 @@ class ChatActivity : AppCompatActivity() {
     private fun bumpUnreadForOthers() {
         val me = auth.currentUser?.uid ?: return
         chatRef.get().addOnSuccessListener { doc ->
+            if (!doc.exists()) return@addOnSuccessListener
             val parts = (doc.get("participants") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
             val map = (doc.get("unreadCounts") as? Map<*, *>)
                 ?.mapKeys { it.key.toString() }
@@ -624,7 +627,14 @@ class ChatActivity : AppCompatActivity() {
                     map[uid] = (map[uid] ?: 0) + 1
                 }
             }
-            chatRef.set(mapOf("unreadCounts" to map), com.google.firebase.firestore.SetOptions.merge())
+            // also refresh lastMessageTime for list sort
+            chatRef.set(
+                mapOf(
+                    "unreadCounts" to map,
+                    "lastMessageTime" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                ),
+                com.google.firebase.firestore.SetOptions.merge()
+            )
         }
     }
 
