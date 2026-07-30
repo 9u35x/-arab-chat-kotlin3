@@ -13,7 +13,7 @@ data class Chat(
     val participantNames: Map<String, String> = emptyMap(),
     val admins: List<String> = emptyList(),
     val lastMessage: String = "",
-    /** Firestore may store numbers as Long — keep as Any */
+    val lastMessageSenderId: String = "",
     val unreadCounts: Map<String, Any>? = null,
     @ServerTimestamp
     val lastMessageTime: Date? = null
@@ -32,8 +32,8 @@ data class Chat(
     fun unreadFor(uid: String): Int {
         val v = unreadCounts?.get(uid) ?: return 0
         return when (v) {
-            is Number -> v.toInt()
-            is String -> v.toIntOrNull() ?: 0
+            is Number -> v.toInt().coerceAtLeast(0)
+            is String -> v.toIntOrNull()?.coerceAtLeast(0) ?: 0
             else -> 0
         }
     }

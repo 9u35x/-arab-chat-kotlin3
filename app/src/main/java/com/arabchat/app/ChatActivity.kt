@@ -600,41 +600,30 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+
     private fun clearMyUnread() {
         val me = auth.currentUser?.uid ?: return
-        chatRef.get().addOnSuccessListener { doc ->
-            if (!doc.exists()) return@addOnSuccessListener
-            val map = (doc.get("unreadCounts") as? Map<*, *>)
-                ?.mapKeys { it.key.toString() }
-                ?.mapValues { (it.value as? Number)?.toInt() ?: 0 }
-                ?.toMutableMap() ?: mutableMapOf()
-            map[me] = 0
-            chatRef.set(mapOf("unreadCounts" to map), com.google.firebase.firestore.SetOptions.merge())
-        }
+        chatRef.update(mapOf("unreadCounts.${'$'}me" to 0))
+            .addOnFailureListener {
+                chatRef.set(mapOf("unreadCounts" to mapOf(me to 0)), com.google.firebase.firestore.SetOptions.merge())
+            }
     }
 
     private fun bumpUnreadForOthers() {
         val me = auth.currentUser?.uid ?: return
         chatRef.get().addOnSuccessListener { doc ->
-            if (!doc.exists()) return@addOnSuccessListener
-            val parts = (doc.get("participants") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-            val map = (doc.get("unreadCounts") as? Map<*, *>)
-                ?.mapKeys { it.key.toString() }
-                ?.mapValues { (it.value as? Number)?.toInt() ?: 0 }
-                ?.toMutableMap() ?: mutableMapOf()
-            for (uid in parts) {
+            val list = (doc.get("participants") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+            val updates = hashMapOf<String, Any>(
+                "lastMessageSenderId" to me
+            )
+            for (uid in list) {
                 if (uid != me) {
-                    map[uid] = (map[uid] ?: 0) + 1
+                    updates["unreadCounts.${'$'}uid"] = com.google.firebase.firestore.FieldValue.increment(1)
                 }
             }
-            // also refresh lastMessageTime for list sort
-            chatRef.set(
-                mapOf(
-                    "unreadCounts" to map,
-                    "lastMessageTime" to com.google.firebase.firestore.FieldValue.serverTimestamp()
-                ),
-                com.google.firebase.firestore.SetOptions.merge()
-            )
+            if (updates.size > 1) {
+                chatRef.update(updates)
+            }
         }
     }
 
