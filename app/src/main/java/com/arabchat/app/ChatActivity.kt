@@ -1,7 +1,5 @@
 package com.arabchat.app
 
-import android.content.DialogInterface
-
 import android.Manifest
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
@@ -125,16 +123,22 @@ class ChatActivity : AppCompatActivity() {
         tvDeleteChat?.setOnClickListener { confirmDeleteChat() }
         tvSend.setOnClickListener { sendTextMessage() }
 
-        tvTitle.setOnClickListener {
+        val openPeerProfile = View.OnClickListener {
             val profileIntent = android.content.Intent(this, ProfileActivity::class.java)
             profileIntent.putExtra("name", chatTitle)
             val isGroupLike = chatType == "group" || chatType == "channel"
             profileIntent.putExtra("isGroup", isGroupLike)
-            if (!isGroupLike && otherUserId != null) {
-                profileIntent.putExtra("userId", otherUserId)
+            val peer = otherUserId ?: peerUid
+            if (!isGroupLike && peer != null) {
+                profileIntent.putExtra("uid", peer)
+                profileIntent.putExtra("userId", peer)
             }
             startActivity(profileIntent)
         }
+        tvTitle.setOnClickListener(openPeerProfile)
+        findViewById<View?>(R.id.ivPeerAvatar)?.setOnClickListener(openPeerProfile)
+        findViewById<View?>(R.id.tvPeerAvatar)?.setOnClickListener(openPeerProfile)
+
         chatRef.get().addOnSuccessListener { doc ->
             chatType = doc.getString("type") ?: "direct"
             val parts = (doc.get("participants") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
@@ -496,7 +500,7 @@ class ChatActivity : AppCompatActivity() {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(R.string.delete_message)
             .setMessage(R.string.delete_message_confirm)
-            .setPositiveButton(R.string.delete) { _: DialogInterface, _: Int ->
+            .setPositiveButton(R.string.delete) { _, _ ->
                 messagesRef.document(message.id).delete()
                     .addOnSuccessListener {
                         Toast.makeText(this, R.string.message_deleted, Toast.LENGTH_SHORT).show()
@@ -514,7 +518,7 @@ class ChatActivity : AppCompatActivity() {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(R.string.delete_chat)
             .setMessage(R.string.delete_chat_confirm)
-            .setPositiveButton(R.string.delete) { _: DialogInterface, _: Int ->
+            .setPositiveButton(R.string.delete) { _, _ ->
                 deleteOrLeaveChat(me)
             }
             .setNegativeButton(android.R.string.cancel, null)

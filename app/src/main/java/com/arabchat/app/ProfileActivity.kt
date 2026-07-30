@@ -92,10 +92,10 @@ class ProfileActivity : AppCompatActivity() {
         tvBack.setOnClickListener { finish() }
 
         val targetUid = intent.getStringExtra("uid")
+            ?: intent.getStringExtra("userId")
         val nameExtra = intent.getStringExtra("name").orEmpty()
         val isGroup = intent.getBooleanExtra("isGroup", false)
 
-        // Only own profile when no uid is passed
         if (targetUid.isNullOrBlank()) {
             setupOwnProfileMode()
         } else {
