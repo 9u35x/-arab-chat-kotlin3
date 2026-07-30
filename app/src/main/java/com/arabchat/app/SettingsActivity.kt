@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -54,6 +55,10 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvOpenProfile).setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
+        findViewById<TextView>(R.id.tvBlocked).setOnClickListener {
+            showBlockedList()
+        }
+
         findViewById<TextView>(R.id.tvChannels).setOnClickListener {
             startActivity(Intent(this, ChannelsActivity::class.java))
         }
@@ -71,9 +76,7 @@ class SettingsActivity : AppCompatActivity() {
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
         }
-        findViewById<TextView>(R.id.tvBlocked).setOnClickListener {
-            Toast.makeText(this, R.string.blocked_soon, Toast.LENGTH_SHORT).show()
-        }
+        
         findViewById<TextView>(R.id.tvClearCache).setOnClickListener {
             try {
                 cacheDir?.listFiles()?.forEach { it.deleteRecursively() }
@@ -105,6 +108,62 @@ class SettingsActivity : AppCompatActivity() {
         } catch (_: Exception) {
             tvVersion.text = getString(R.string.version_format, "1.0")
         }
+    }
+
+
+    private fun showBlockedList() {
+        val me = auth.currentUser?.uid
+        if (me == null) {
+            Toast.makeText(this, "يجب تسجيل الدخول", Toast.LENGTH_SHORT).show()
+            return
+        }
+        BlockManager.loadBlocked(me) { ids ->
+            if (ids.isEmpty()) {
+                Toast.makeText(this, R.string.no_blocked_users, Toast.LENGTH_SHORT).show()
+                return@loadBlocked
+            }
+            // Load names
+            val db = FirebaseFirestore.getInstance()
+            val names = mutableMapOf<String, String>()
+            var pending = ids.size
+            for (id in ids) {
+                db.collection("users").document(id).get()
+                    .addOnSuccessListener { snap ->
+                        val p = snap.toObject(UserProfile::class.java)
+                        names[id] = p?.bestName() ?: id.take(6)
+                        pending--
+                        if (pending <= 0) presentBlockedDialog(me, ids, names)
+                    }
+                    .addOnFailureListener {
+                        names[id] = id.take(6)
+                        pending--
+                        if (pending <= 0) presentBlockedDialog(me, ids, names)
+                    }
+            }
+        }
+    }
+
+    private fun presentBlockedDialog(me: String, ids: List<String>, names: Map<String, String>) {
+        val labels = ids.map { names[it] ?: it }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle(R.string.blocked_users)
+            .setItems(labels) { _, which ->
+                val target = ids[which]
+                val name = names[target] ?: target
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.unblock_user)
+                    .setMessage(getString(R.string.unblock_confirm, name))
+                    .setPositiveButton(R.string.unblock_user) { _, _ ->
+                        BlockManager.unblockUser(me, target) { ok, err ->
+                            if (ok) Toast.makeText(this, R.string.user_unblocked, Toast.LENGTH_SHORT).show()
+                            else Toast.makeText(this, err ?: "خطأ", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     companion object {

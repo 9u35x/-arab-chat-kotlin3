@@ -114,4 +114,11 @@
     <string name="message_deleted">تم حذف الرسالة</string>
     <string name="delete_message_confirm">هل أنت متأكد أنك تريد حذف هذه الرسالة؟</string>
     <string name="cannot_delete_message">لا يمكنك حذف هذه الرسالة</string>
+    <string name="block_user">حظر</string>
+    <string name="unblock_user">إلغاء الحظر</string>
+    <string name="block_confirm">هل تريد حظر هذا المستخدم؟ لن يظهر في محادثاتك.</string>
+    <string name="unblock_confirm">إلغاء حظر %1$s؟</string>
+    <string name="user_blocked">تم حظر المستخدم</string>
+    <string name="user_unblocked">تم إلغاء الحظر</string>
+    <string name="no_blocked_users">لا يوجد مستخدمون محظورون</string>
 </resources>

@@ -246,6 +246,21 @@
                     android:lineSpacingExtra="3dp"
                     android:text="—" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvBlockUser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:padding="14dp"
+                android:background="@drawable/bg_profile_info_row"
+                android:text="@string/block_user"
+                android:textColor="#FF5C7A"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true" />
         </LinearLayout>
 
         <!-- ===== OWN PROFILE editable ===== -->

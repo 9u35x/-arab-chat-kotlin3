@@ -53,6 +53,8 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvContactUsername: TextView
     private lateinit var tvContactBio: TextView
     private lateinit var tvContactGender: TextView
+    private var contactUid: String? = null
+    private var contactBlocked = false
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -96,6 +98,7 @@ class ProfileActivity : AppCompatActivity() {
         val nameExtra = intent.getStringExtra("name").orEmpty()
         val isGroup = intent.getBooleanExtra("isGroup", false)
 
+        // Only own profile when no uid is passed
         if (targetUid.isNullOrBlank()) {
             setupOwnProfileMode()
         } else {
@@ -105,6 +108,7 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun setupContactMode(uid: String, name: String, isGroup: Boolean) {
         isOwnProfile = false
+        contactUid = uid
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
@@ -153,7 +157,50 @@ class ProfileActivity : AppCompatActivity() {
                     else -> "—"
                 }
 
+                
                 showAvatar(profile?.avatarUrl)
+
+                val tvBlock = findViewById<TextView?>(R.id.tvBlockUser)
+                val me = auth.currentUser?.uid
+                if (tvBlock != null && me != null && !isGroup) {
+                    tvBlock.visibility = android.view.View.VISIBLE
+                    BlockManager.isBlocked(me, uid) { blocked ->
+                        contactBlocked = blocked
+                        tvBlock.text = getString(if (blocked) R.string.unblock_user else R.string.block_user)
+                    }
+                    tvBlock.setOnClickListener {
+                        val target = contactUid ?: return@setOnClickListener
+                        if (contactBlocked) {
+                            BlockManager.unblockUser(me, target) { ok, err ->
+                                if (ok) {
+                                    contactBlocked = false
+                                    tvBlock.text = getString(R.string.block_user)
+                                    Toast.makeText(this, R.string.user_unblocked, Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(this, err ?: "خطأ", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        } else {
+                            androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle(R.string.block_user)
+                                .setMessage(R.string.block_confirm)
+                                .setPositiveButton(R.string.block_user) { _, _ ->
+                                    BlockManager.blockUser(me, target) { ok, err ->
+                                        if (ok) {
+                                            contactBlocked = true
+                                            tvBlock.text = getString(R.string.unblock_user)
+                                            Toast.makeText(this, R.string.user_blocked, Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(this, err ?: "خطأ", Toast.LENGTH_LONG).show()
+                                        }
+                                    }
+                                }
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .show()
+                        }
+                    }
+                }
+
             }
             .addOnFailureListener {
                 tvContactBio.text = getString(R.string.no_bio)
