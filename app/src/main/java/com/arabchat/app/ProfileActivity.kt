@@ -34,17 +34,25 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvChangePhoto: TextView
     private lateinit var progressPhoto: ProgressBar
     private lateinit var tvProfileName: TextView
+    private lateinit var tvProfileSubtitle: TextView
+
+    private lateinit var layoutOwnFields: View
+    private lateinit var layoutContactFields: View
+
     private lateinit var etDisplayName: EditText
     private lateinit var etUsername: EditText
     private lateinit var etBio: EditText
     private lateinit var radioGender: RadioGroup
     private lateinit var radioMale: RadioButton
     private lateinit var radioFemale: RadioButton
-    private lateinit var tvProfileSubtitle: TextView
     private lateinit var tvSaveProfile: TextView
     private lateinit var progressSave: ProgressBar
     private lateinit var tvLogoutProfile: TextView
-    private lateinit var layoutOwnFields: View
+
+    private lateinit var tvContactName: TextView
+    private lateinit var tvContactUsername: TextView
+    private lateinit var tvContactBio: TextView
+    private lateinit var tvContactGender: TextView
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -61,58 +69,85 @@ class ProfileActivity : AppCompatActivity() {
         tvChangePhoto = findViewById(R.id.tvChangePhoto)
         progressPhoto = findViewById(R.id.progressPhoto)
         tvProfileName = findViewById(R.id.tvProfileName)
+        tvProfileSubtitle = findViewById(R.id.tvProfileSubtitle)
+
+        layoutOwnFields = findViewById(R.id.layoutOwnFields)
+        layoutContactFields = findViewById(R.id.layoutContactFields)
+
         etDisplayName = findViewById(R.id.etDisplayName)
         etUsername = findViewById(R.id.etUsername)
         etBio = findViewById(R.id.etBio)
         radioGender = findViewById(R.id.radioGender)
         radioMale = findViewById(R.id.radioMale)
         radioFemale = findViewById(R.id.radioFemale)
-        tvProfileSubtitle = findViewById(R.id.tvProfileSubtitle)
         tvSaveProfile = findViewById(R.id.tvSaveProfile)
         progressSave = findViewById(R.id.progressSave)
         tvLogoutProfile = findViewById(R.id.tvLogoutProfile)
-        layoutOwnFields = findViewById(R.id.layoutOwnFields)
+
+        tvContactName = findViewById(R.id.tvContactName)
+        tvContactUsername = findViewById(R.id.tvContactUsername)
+        tvContactBio = findViewById(R.id.tvContactBio)
+        tvContactGender = findViewById(R.id.tvContactGender)
 
         tvBack.setOnClickListener { finish() }
 
-        val userId = intent.getStringExtra("userId")
-        val name = intent.getStringExtra("name")
-        if (userId != null || name != null) {
-            setupContactMode(userId, name, intent.getBooleanExtra("isGroup", false))
-        } else {
+        val targetUid = intent.getStringExtra("uid")
+        val nameExtra = intent.getStringExtra("name").orEmpty()
+        val isGroup = intent.getBooleanExtra("isGroup", false)
+
+        if (targetUid.isNullOrBlank()) {
             setupOwnProfileMode()
+        } else {
+            setupContactMode(targetUid, nameExtra, isGroup)
         }
     }
 
-    private fun setupContactMode(userId: String?, fallbackName: String?, isGroup: Boolean) {
+    private fun setupContactMode(uid: String, name: String, isGroup: Boolean) {
         isOwnProfile = false
-        layoutOwnFields.visibility = View.GONE
-        val name = fallbackName ?: "?"
-        tvProfileAvatar.text = if (name.isNotEmpty()) name.take(1).uppercase() else "?"
-        tvProfileName.visibility = View.VISIBLE
-        tvProfileName.text = name
-        tvProfileSubtitle.text = if (isGroup) "مجموعة / قناة" else ""
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
-        // Never show email. Load public fields only.
-        if (!userId.isNullOrBlank() && !isGroup) {
-            db = FirebaseFirestore.getInstance()
-            db.collection("users").document(userId).get()
-                .addOnSuccessListener { snap ->
-                    val profile = snap.toObject(UserProfile::class.java)
-                    val display = profile?.bestName() ?: name
-                    tvProfileName.text = display
-                    tvProfileAvatar.text = if (display.isNotEmpty()) display.take(1).uppercase() else "?"
-                    val parts = mutableListOf<String>()
-                    if (!profile?.username.isNullOrBlank()) parts.add("@${profile?.username}")
-                    when (profile?.gender) {
-                        "male" -> parts.add(getString(R.string.gender_male))
-                        "female" -> parts.add(getString(R.string.gender_female))
-                    }
-                    if (!profile?.bio.isNullOrBlank()) parts.add(profile!!.bio)
-                    tvProfileSubtitle.text = parts.joinToString(" · ")
-                    showAvatar(profile?.avatarUrl)
-                }
+        layoutOwnFields.visibility = View.GONE
+        layoutContactFields.visibility = View.VISIBLE
+        tvChangePhoto.visibility = View.GONE
+        tvProfileName.visibility = View.GONE
+        tvProfileSubtitle.visibility = View.GONE
+
+        tvProfileTitle.text = getString(R.string.profile_title)
+        tvContactName.text = name.ifBlank { "—" }
+        tvProfileAvatar.text = if (name.isNotEmpty()) name.take(1).uppercase() else "?"
+
+        if (isGroup) {
+            tvContactUsername.text = "—"
+            tvContactBio.text = getString(R.string.no_bio)
+            tvContactGender.text = "—"
+            return
         }
+
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { snapshot ->
+                val profile = snapshot.toObject(UserProfile::class.java)
+                val display = profile?.bestName() ?: name.ifBlank { "مستخدم" }
+                tvContactName.text = display
+                tvProfileAvatar.text = display.take(1).uppercase()
+
+                val uname = profile?.username?.trim().orEmpty()
+                tvContactUsername.text = if (uname.isNotEmpty()) "@$uname" else getString(R.string.no_username)
+
+                val bio = profile?.bio?.trim().orEmpty()
+                tvContactBio.text = if (bio.isNotEmpty()) bio else getString(R.string.no_bio)
+
+                tvContactGender.text = when (profile?.gender) {
+                    "male" -> getString(R.string.gender_male)
+                    "female" -> getString(R.string.gender_female)
+                    else -> "—"
+                }
+
+                showAvatar(profile?.avatarUrl)
+            }
+            .addOnFailureListener {
+                tvContactBio.text = getString(R.string.no_bio)
+            }
     }
 
     private fun setupOwnProfileMode() {
@@ -127,20 +162,14 @@ class ProfileActivity : AppCompatActivity() {
             return
         }
 
-        tvProfileTitle.text = getString(R.string.my_profile)
-        tvProfileName.visibility = View.GONE
         layoutOwnFields.visibility = View.VISIBLE
+        layoutContactFields.visibility = View.GONE
         tvChangePhoto.visibility = View.VISIBLE
-        tvSaveProfile.visibility = View.VISIBLE
-        tvLogoutProfile.visibility = View.VISIBLE
+        tvProfileName.visibility = View.GONE
+        // Never show email
+        tvProfileSubtitle.visibility = View.GONE
 
-        val tvOpenSettings: TextView? = findViewById(R.id.tvOpenSettings)
-        tvOpenSettings?.visibility = View.VISIBLE
-        tvOpenSettings?.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        }
-
-        tvProfileSubtitle.text = getString(R.string.my_profile) // never show email
+        tvProfileTitle.text = getString(R.string.my_profile)
         tvProfileAvatar.text = "?"
 
         loadOwnProfile(user.uid)
@@ -160,6 +189,10 @@ class ProfileActivity : AppCompatActivity() {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
+
+        findViewById<TextView?>(R.id.tvOpenSettings)?.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
     }
 
     private fun loadOwnProfile(uid: String) {
@@ -170,7 +203,7 @@ class ProfileActivity : AppCompatActivity() {
                     ?: profile?.username?.takeIf { it.isNotBlank() }
                     ?: getString(R.string.guest_label)
 
-                etDisplayName.setText(profile?.displayName ?: display)
+                etDisplayName.setText(profile?.displayName ?: "")
                 etUsername.setText(profile?.username ?: "")
                 etBio.setText(profile?.bio ?: "")
                 when (profile?.gender) {
@@ -184,8 +217,9 @@ class ProfileActivity : AppCompatActivity() {
                 showAvatar(currentAvatarUrl)
             }
             .addOnFailureListener {
-                val fallback = getString(R.string.guest_label)
                 etDisplayName.setText("")
+                etUsername.setText("")
+                etBio.setText("")
                 tvProfileAvatar.text = "?"
             }
     }

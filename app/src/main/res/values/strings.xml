@@ -101,17 +101,8 @@
     <string name="join_channel_confirm">هل تريد الانضمام لهذه القناة؟</string>
     <string name="channel_readonly_hint">القناة للقراءة فقط — المشرف ينشر</string>
 
-
-    <string name="delete_message">حذف الرسالة</string>
-    <string name="delete_message_confirm">هل تريد حذف هذه الرسالة؟</string>
-    <string name="message_deleted">تم حذف الرسالة</string>
-    <string name="cannot_delete_message">لا يمكنك حذف هذه الرسالة</string>
-    <string name="delete_chat">حذف المحادثة</string>
-    <string name="delete_chat_confirm">هل تريد حذف / مغادرة هذه المحادثة؟</string>
-    <string name="chat_deleted">تم حذف المحادثة</string>
-    <string name="left_chat">تم مغادرة المحادثة</string>
-    <string name="delete">حذف</string>
-
-    <string name="cancel">إلغاء</string>
-    <string name="ok">حسناً</string>
+    <string name="save">حفظ</string>
+    <string name="settings">الإعدادات</string>
+    <string name="no_bio">لا توجد سيرة ذاتية</string>
+    <string name="no_username">لا يوجد اسم مستخدم</string>
 </resources>
