@@ -138,11 +138,11 @@ class ChatActivity : AppCompatActivity() {
         chatRef.get().addOnSuccessListener { doc ->
             chatType = doc.getString("type") ?: "direct"
             val parts = (doc.get("participants") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-            val admins = (doc.get("admins") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+            val adminsList = (doc.get("admins") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
             participantIds = parts
-            adminIds = admins
+            adminIds = adminsList
             val me = currentUser.uid
-            isAdmin = me in admins || (chatType == "channel" && parts.firstOrNull() == me)
+            isAdmin = me in adminsList || (chatType == "channel" && parts.firstOrNull() == me)
             if (chatType == "direct") {
                 loadPeerHeader(parts)
             } else {
@@ -158,18 +158,15 @@ class ChatActivity : AppCompatActivity() {
             if (chatType == "channel") {
                 applyChannelPermissions()
             }
-            val participants = (doc.get("participants") as? List<*>)?.map { it.toString() } ?: emptyList()
-            val admins = (doc.get("admins") as? List<*>)?.map { it.toString() } ?: emptyList()
             val myUid = currentUser.uid
-            isMember = myUid in participants
-            isAdmin = myUid in admins
+            isMember = myUid in participantIds
             if (chatType == "channel") {
-                isAdmin = myUid in admins || participants.firstOrNull() == myUid
-            } else {
-                isAdmin = true
+                isAdmin = myUid in adminIds || participantIds.firstOrNull() == myUid
+            } else if (chatType != "direct") {
+                isAdmin = myUid in adminIds
             }
-            otherUserId = participants.firstOrNull { it != myUid }
-            applyChannelPermissions()
+            otherUserId = participantIds.firstOrNull { it != myUid }
+            if (chatType == "channel") applyChannelPermissions()
         }
 
         tvPickImage.setOnClickListener {
