@@ -13,6 +13,8 @@ data class Message(
     val isTemporary: Boolean = false,
     val viewed: Boolean = false,
     val durationMs: Long = 0,
+    /** "sent" | "delivered" | "read" */
+    val status: String = "sent",
     @ServerTimestamp
     val timestamp: Date? = null
 )

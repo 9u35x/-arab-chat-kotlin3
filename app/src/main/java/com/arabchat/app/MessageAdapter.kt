@@ -58,6 +58,22 @@ class MessageAdapter(
                     holder.text, holder.time, holder.image, holder.tempOverlay,
                     holder.voiceRow, holder.playVoice, holder.voiceDuration
                 )
+                holder.status?.let { st ->
+                    when (message.status) {
+                        "read" -> {
+                            st.text = "✓✓"
+                            st.setTextColor(0xFFB983FF.toInt())
+                        }
+                        "delivered" -> {
+                            st.text = "✓✓"
+                            st.setTextColor(0xCCFFFFFF.toInt())
+                        }
+                        else -> {
+                            st.text = "✓"
+                            st.setTextColor(0xCCFFFFFF.toInt())
+                        }
+                    }
+                }
                 holder.itemView.setOnLongClickListener {
                     onMessageLongClick(message)
                     true

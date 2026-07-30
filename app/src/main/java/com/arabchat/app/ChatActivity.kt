@@ -37,13 +37,8 @@ class ChatActivity : AppCompatActivity() {
     private var cachedSenderName: String? = null
     private val senderNameCache = mutableMapOf<String, String>()
     private var peerUid: String? = null
-    private var participantIds: List<String> = emptyList()
-    private var adminIds: List<String> = emptyList()
-    private var isAdmin: Boolean = false
-    private var channelAvatarUrl: String? = null
-    private var channelDescription: String? = null
-    private var pendingChannelPhoto: Boolean = false
     private var otherUserId: String? = null
+    private var isAdmin: Boolean = false
     private var isMember: Boolean = true
 
     private var listenerRegistration: ListenerRegistration? = null
@@ -76,19 +71,10 @@ class ChatActivity : AppCompatActivity() {
         if (granted) startRecording() else Toast.makeText(this, "نحتاج إذن الميكروفون", Toast.LENGTH_SHORT).show()
     }
 
-
-    private val channelPhotoLauncher = registerForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null && pendingChannelPhoto) {
-            pendingChannelPhoto = false
-            uploadChannelAvatar(uri)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
+        ChatNotifier.ensureChannel(this)
 
         db = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
@@ -100,6 +86,7 @@ class ChatActivity : AppCompatActivity() {
             return
         }
         chatId = chatIdExtra
+        ChatNotifier.activeChatId = chatId
         chatTitle = intent.getStringExtra("chatTitle") ?: getString(R.string.general_chat_title)
 
         rvMessages = findViewById(R.id.rvMessages)
@@ -151,36 +138,12 @@ class ChatActivity : AppCompatActivity() {
         chatRef.get().addOnSuccessListener { doc ->
             chatType = doc.getString("type") ?: "direct"
             val parts = (doc.get("participants") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-            val adminsList = (doc.get("admins") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-            participantIds = parts
-            adminIds = adminsList
-            val me = currentUser.uid
-            isAdmin = me in adminsList || (chatType == "channel" && parts.firstOrNull() == me)
-            channelAvatarUrl = doc.getString("avatarUrl")
-            channelDescription = doc.getString("description")
             if (chatType == "direct") {
                 loadPeerHeader(parts)
             } else {
                 val channelName = doc.getString("name") ?: chatTitle
                 findViewById<TextView>(R.id.tvChatTitle).text = channelName
                 chatTitle = channelName
-                val sub = findViewById<TextView?>(R.id.tvChatSubtitle)
-                sub?.visibility = android.view.View.VISIBLE
-                val desc = channelDescription?.takeIf { it.isNotBlank() }
-                sub?.text = if (desc != null) desc else getString(R.string.members_count, parts.size)
-                if (isAdmin) {
-                    sub?.setOnClickListener { openChannelInfoOrMembers() }
-                    findViewById<TextView>(R.id.tvChatTitle).setOnClickListener { openChannelInfoOrMembers() }
-                    findViewById<android.view.View?>(R.id.ivPeerAvatar)?.setOnClickListener { openChannelInfoOrMembers() }
-                    findViewById<android.view.View?>(R.id.tvPeerAvatar)?.setOnClickListener { openChannelInfoOrMembers() }
-                } else {
-                    sub?.setOnClickListener { showChannelMembers() }
-                    findViewById<TextView>(R.id.tvChatTitle).setOnClickListener { showChannelMembers() }
-                }
-                showPeerAvatar(channelAvatarUrl, channelName)
-            }
-            if (chatType == "channel") {
-                applyChannelPermissions()
             }
             val participants = (doc.get("participants") as? List<*>)?.map { it.toString() } ?: emptyList()
             val admins = (doc.get("admins") as? List<*>)?.map { it.toString() } ?: emptyList()
@@ -237,6 +200,7 @@ class ChatActivity : AppCompatActivity() {
                 }
                 resolveSenderNames(messages)
                 adapter.submitList(messages)
+                markMessagesRead(messages)
                 if (messages.isNotEmpty()) {
                     rvMessages.scrollToPosition(messages.size - 1)
                 }
@@ -347,7 +311,7 @@ class ChatActivity : AppCompatActivity() {
             "senderId" to user.uid,
             "senderName" to currentSenderName(),
             "text" to text,
-            "type" to "text",
+            "type" to "text", "status" to "sent",
             "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp()
         )
 
@@ -381,7 +345,7 @@ class ChatActivity : AppCompatActivity() {
             val message = hashMapOf(
                 "senderId" to user.uid,
                 "senderName" to senderName,
-                "type" to "image",
+                "type" to "image", "status" to "sent",
                 "mediaUrl" to publicUrl,
                 "isTemporary" to temporary,
                 "viewed" to false,
@@ -450,7 +414,7 @@ class ChatActivity : AppCompatActivity() {
             val message = hashMapOf(
                 "senderId" to user.uid,
                 "senderName" to senderName,
-                "type" to "voice",
+                "type" to "voice", "status" to "sent",
                 "mediaUrl" to publicUrl,
                 "durationMs" to durationMs,
                 "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp()
@@ -505,6 +469,20 @@ class ChatActivity : AppCompatActivity() {
         if (message.id.isEmpty()) return
         messagesRef.document(message.id).update("viewed", true)
     }
+
+    private fun applyChannelPermissions() {
+        if (chatType != "channel") return
+        val etMessage = findViewById<android.widget.EditText>(R.id.etMessage)
+        val tvSend = findViewById<android.view.View>(R.id.tvSend)
+        val tvPick = findViewById<android.view.View>(R.id.tvPickImage)
+        val canPost = isAdmin
+        etMessage?.isEnabled = canPost
+        etMessage?.hint = if (canPost) getString(R.string.message_hint) else getString(R.string.channel_readonly_hint)
+        tvSend?.isEnabled = canPost
+        tvPick?.isEnabled = canPost
+        if (!canPost) etMessage?.setText("")
+    }
+
 
     private fun confirmDeleteMessage(message: Message) {
         val me = auth.currentUser?.uid ?: return
@@ -607,143 +585,18 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun openChannelInfoOrMembers() {
-        if (chatType != "channel" && chatType != "group") return
-        if (isAdmin) {
-            showChannelSettingsDialog()
-        } else {
-            showChannelMembers()
-        }
+    override fun onDestroy() {
+        if (ChatNotifier.activeChatId == chatId) ChatNotifier.activeChatId = null
+        super.onDestroy()
     }
 
-    private fun showChannelMembers() {
-        if (participantIds.isEmpty()) {
-            Toast.makeText(this, R.string.no_members, Toast.LENGTH_SHORT).show()
-            return
-        }
-        val names = mutableMapOf<String, String>()
-        var pending = participantIds.size
-        val show = {
-            val labels = participantIds.map { uid ->
-                val n = names[uid] ?: uid.take(6)
-                val tag = if (uid in adminIds) " 👑" else ""
-                n + tag
-            }.toTypedArray()
-            androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle(getString(R.string.channel_members_title, participantIds.size))
-                .setItems(labels, null)
-                .setPositiveButton(android.R.string.ok, null)
-                .show()
-        }
-        for (uid in participantIds) {
-            db.collection("users").document(uid).get()
-                .addOnSuccessListener { snap ->
-                    val p = snap.toObject(UserProfile::class.java)
-                    names[uid] = p?.bestName() ?: uid.take(6)
-                    pending--
-                    if (pending <= 0) show()
-                }
-                .addOnFailureListener {
-                    names[uid] = uid.take(6)
-                    pending--
-                    if (pending <= 0) show()
-                }
-        }
-    }
-
-    private fun showChannelSettingsDialog() {
-        val view = layoutInflater.inflate(R.layout.dialog_channel_settings, null)
-        val etName = view.findViewById<android.widget.EditText>(R.id.etEditChannelName)
-        val etDesc = view.findViewById<android.widget.EditText>(R.id.etEditChannelDesc)
-        val iv = view.findViewById<android.widget.ImageView>(R.id.ivChannelAvatar)
-        val tvLetter = view.findViewById<TextView>(R.id.tvChannelAvatarLetter)
-        val tvChange = view.findViewById<TextView>(R.id.tvChangeChannelPhoto)
-        val tvShare = view.findViewById<TextView>(R.id.tvShareChannel)
-
-        etName.setText(chatTitle)
-        etDesc.setText(channelDescription.orEmpty())
-        tvLetter.text = if (chatTitle.isNotEmpty()) chatTitle.take(1) else "ق"
-        if (!channelAvatarUrl.isNullOrEmpty()) {
-            iv.visibility = android.view.View.VISIBLE
-            tvLetter.visibility = android.view.View.GONE
-            com.bumptech.glide.Glide.with(this).load(channelAvatarUrl).circleCrop().into(iv)
-        }
-
-        tvChange.setOnClickListener {
-            pendingChannelPhoto = true
-            channelPhotoLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        }
-        tvShare.setOnClickListener { shareChannelLink() }
-
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(R.string.channel_settings)
-            .setView(view)
-            .setPositiveButton(R.string.save) { _, _ ->
-                val newName = etName.text.toString().trim()
-                val newDesc = etDesc.text.toString().trim()
-                if (newName.isEmpty()) {
-                    Toast.makeText(this, R.string.error_channel_name, Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-                val data = hashMapOf<String, Any>(
-                    "name" to newName,
-                    "description" to newDesc
-                )
-                chatRef.set(data, com.google.firebase.firestore.SetOptions.merge())
-                    .addOnSuccessListener {
-                        chatTitle = newName
-                        channelDescription = newDesc
-                        findViewById<TextView>(R.id.tvChatTitle).text = newName
-                        Toast.makeText(this, R.string.channel_updated, Toast.LENGTH_SHORT).show()
-                    }
-            }
-            .setNeutralButton(R.string.channel_members_short) { _, _ -> showChannelMembers() }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    private fun uploadChannelAvatar(uri: Uri) {
-        val path = "channel_avatars/${chatId}.jpg"
-        Toast.makeText(this, R.string.uploading_photo, Toast.LENGTH_SHORT).show()
-        SupabaseStorage.uploadFromUri(this, uri, path, "image/jpeg") { publicUrl, error ->
-            if (publicUrl != null) {
-                chatRef.set(mapOf("avatarUrl" to publicUrl), com.google.firebase.firestore.SetOptions.merge())
-                    .addOnSuccessListener {
-                        channelAvatarUrl = publicUrl
-                        showPeerAvatar(publicUrl, chatTitle)
-                        Toast.makeText(this, R.string.channel_updated, Toast.LENGTH_SHORT).show()
-                    }
-            } else {
-                Toast.makeText(this, error ?: "فشل الرفع", Toast.LENGTH_LONG).show()
+    private fun markMessagesRead(messages: List<Message>) {
+        val me = auth.currentUser?.uid ?: return
+        for (m in messages) {
+            if (m.senderId != me && m.id.isNotEmpty() && m.status != "read") {
+                messagesRef.document(m.id).update("status", "read")
             }
         }
     }
-
-    private fun shareChannelLink() {
-        val text = getString(R.string.share_channel_text, chatTitle, chatId)
-        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(android.content.Intent.EXTRA_TEXT, text)
-        }
-        startActivity(android.content.Intent.createChooser(intent, getString(R.string.share_channel)))
-    }
-
-    private fun applyChannelPermissions() {
-        if (chatType != "channel") return
-        val etMessage = findViewById<android.widget.EditText?>(R.id.etMessage)
-        val tvSend = findViewById<android.view.View?>(R.id.tvSend)
-        val tvPick = findViewById<android.view.View?>(R.id.tvPickImage)
-        val tvRecord = findViewById<android.view.View?>(R.id.tvRecordVoice)
-        val canPost = isAdmin
-        etMessage?.isEnabled = canPost
-        etMessage?.hint = if (canPost) getString(R.string.message_hint) else getString(R.string.channel_readonly_hint)
-        tvSend?.isEnabled = canPost
-        tvPick?.isEnabled = canPost
-        tvRecord?.isEnabled = canPost
-    }
-
 
 }

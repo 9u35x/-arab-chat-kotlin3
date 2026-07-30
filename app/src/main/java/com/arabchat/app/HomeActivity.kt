@@ -18,6 +18,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var adapter: ChatListAdapter
     private lateinit var tvEmptyState: TextView
     private var listenerRegistration: ListenerRegistration? = null
+    private var lastNotified: MutableMap<String, String> = mutableMapOf()
     private var allChats: List<Chat> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,6 +113,19 @@ class HomeActivity : AppCompatActivity() {
                     doc.toObject(Chat::class.java)?.also { it.id = doc.id }
                 }.sortedByDescending { it.lastMessageTime?.time ?: 0L }
 
+                // Notify for new last messages
+                val me = uid
+                for (chat in allChats) {
+                    val key = chat.id
+                    val last = chat.lastMessage.orEmpty()
+                    val prev = lastNotified[key]
+                    if (prev != null && prev != last && last.isNotBlank()) {
+                        // avoid notifying for my own sends if last message is from me - best effort
+                        val title = chat.titleFor(me)
+                        ChatNotifier.notifyNewMessage(this@HomeActivity, chat.id, title, last)
+                    }
+                    lastNotified[key] = last
+                }
                 val q = findViewById<EditText>(R.id.etSearchChats).text?.toString().orEmpty()
                 applyFilter(q)
             }
