@@ -1,5 +1,7 @@
 package com.arabchat.app
 
+import android.content.DialogInterface
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
@@ -494,7 +496,7 @@ class ChatActivity : AppCompatActivity() {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(R.string.delete_message)
             .setMessage(R.string.delete_message_confirm)
-            .setPositiveButton(R.string.delete) { _, _ ->
+            .setPositiveButton(R.string.delete) { _: DialogInterface, _: Int ->
                 messagesRef.document(message.id).delete()
                     .addOnSuccessListener {
                         Toast.makeText(this, R.string.message_deleted, Toast.LENGTH_SHORT).show()
@@ -512,7 +514,7 @@ class ChatActivity : AppCompatActivity() {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(R.string.delete_chat)
             .setMessage(R.string.delete_chat_confirm)
-            .setPositiveButton(R.string.delete) { _, _ ->
+            .setPositiveButton(R.string.delete) { _: DialogInterface, _: Int ->
                 deleteOrLeaveChat(me)
             }
             .setNegativeButton(android.R.string.cancel, null)

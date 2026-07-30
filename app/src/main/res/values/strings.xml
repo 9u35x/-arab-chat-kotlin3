@@ -112,4 +112,6 @@
     <string name="chat_deleted">تم حذف المحادثة</string>
     <string name="left_chat">غادرت المحادثة</string>
     <string name="message_deleted">تم حذف الرسالة</string>
+    <string name="delete_message_confirm">هل أنت متأكد أنك تريد حذف هذه الرسالة؟</string>
+    <string name="cannot_delete_message">لا يمكنك حذف هذه الرسالة</string>
 </resources>
