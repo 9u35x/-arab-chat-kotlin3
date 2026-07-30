@@ -14,7 +14,6 @@ data class Chat(
     val admins: List<String> = emptyList(),
     val lastMessage: String = "",
     val lastMessageSenderId: String = "",
-    val unreadCounts: Map<String, Any>? = null,
     @ServerTimestamp
     val lastMessageTime: Date? = null
 ) {
@@ -26,15 +25,6 @@ data class Chat(
                 val otherUid = participants.firstOrNull { it != currentUid }
                 participantNames[otherUid] ?: "محادثة"
             }
-        }
-    }
-
-    fun unreadFor(uid: String): Int {
-        val v = unreadCounts?.get(uid) ?: return 0
-        return when (v) {
-            is Number -> v.toInt().coerceAtLeast(0)
-            is String -> v.toIntOrNull()?.coerceAtLeast(0) ?: 0
-            else -> 0
         }
     }
 

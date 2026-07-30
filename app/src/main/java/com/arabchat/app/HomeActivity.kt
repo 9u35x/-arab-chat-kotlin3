@@ -114,7 +114,8 @@ class HomeActivity : AppCompatActivity() {
                         c.id = doc.id
                     }
                 }.sortedWith(
-                    compareByDescending<Chat> { it.unreadFor(uid) > 0 }
+                    compareByDescending<Chat> { it.unreadFor(uid)
+                UnreadStore.syncFromChats(this@HomeActivity, uid, allChats) > 0 }
                         .thenByDescending { it.lastMessageTime?.time ?: 0L }
                 )
 

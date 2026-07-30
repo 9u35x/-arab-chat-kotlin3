@@ -86,6 +86,7 @@ class ChatActivity : AppCompatActivity() {
             return
         }
         chatId = chatIdExtra
+        UnreadStore.markRead(this, chatId)
         ChatNotifier.activeChatId = chatId
         chatTitle = intent.getStringExtra("chatTitle") ?: getString(R.string.general_chat_title)
 

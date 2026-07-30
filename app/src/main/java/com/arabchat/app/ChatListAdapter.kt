@@ -32,7 +32,7 @@ class ChatListAdapter(
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val chat = chats[position]
         val title = chat.titleFor(currentUid)
-        val unread = chat.unreadFor(currentUid)
+        val unread = UnreadStore.unreadFor(holder.itemView.context, chat, currentUid)
 
         holder.avatarLetter.visibility = View.VISIBLE
         holder.avatarLetter.text = if (title.isNotEmpty()) title.take(1).uppercase() else "?"
