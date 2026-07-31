@@ -127,14 +127,18 @@ class ChatActivity : AppCompatActivity() {
         tvSend.setOnClickListener { sendTextMessage() }
 
         tvTitle.setOnClickListener {
-            val profileIntent = android.content.Intent(this, ProfileActivity::class.java)
-            profileIntent.putExtra("name", chatTitle)
-            val isGroupLike = chatType == "group" || chatType == "channel"
-            profileIntent.putExtra("isGroup", isGroupLike)
-            if (!isGroupLike && otherUserId != null) {
-                profileIntent.putExtra("userId", otherUserId)
+            if (chatType == "channel" || chatType == "group") {
+                if (isAdmin) showChannelSettingsDialog() else showChannelMembers()
+            } else {
+                val profileIntent = android.content.Intent(this, ProfileActivity::class.java)
+                profileIntent.putExtra("name", chatTitle)
+                val peer = try { otherUserId } catch (_: Exception) { null } ?: try { peerUid } catch (_: Exception) { null }
+                if (peer != null) {
+                    profileIntent.putExtra("uid", peer)
+                    profileIntent.putExtra("userId", peer)
+                }
+                startActivity(profileIntent)
             }
-            startActivity(profileIntent)
         }
         chatRef.get().addOnSuccessListener { doc ->
             chatType = doc.getString("type") ?: "direct"
@@ -626,6 +630,55 @@ class ChatActivity : AppCompatActivity() {
                 chatRef.update(updates)
             }
         }
+    }
+
+    private fun showChannelSettingsDialog() {
+        // Channel settings — NOT own profile
+        val view = layoutInflater.inflate(R.layout.dialog_channel_settings, null)
+        val etName = view.findViewById<android.widget.EditText>(R.id.etEditChannelName)
+        val etDesc = view.findViewById<android.widget.EditText>(R.id.etEditChannelDesc)
+        etName?.setText(chatTitle)
+        etDesc?.setText(channelDescription ?: "")
+        view.findViewById<android.widget.TextView>(R.id.tvShareChannel)?.setOnClickListener {
+            val text = getString(R.string.share_channel_text, chatTitle, chatId)
+            val i = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(android.content.Intent.EXTRA_TEXT, text)
+            }
+            startActivity(android.content.Intent.createChooser(i, getString(R.string.share_channel)))
+        }
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.channel_settings)
+            .setView(view)
+            .setPositiveButton(R.string.save) { _, _ ->
+                val newName = etName?.text?.toString()?.trim().orEmpty()
+                val newDesc = etDesc?.text?.toString()?.trim().orEmpty()
+                if (newName.isNotEmpty()) {
+                    chatRef.set(
+                        mapOf("name" to newName, "description" to newDesc),
+                        com.google.firebase.firestore.SetOptions.merge()
+                    )
+                    chatTitle = newName
+                    findViewById<TextView>(R.id.tvChatTitle).text = newName
+                }
+            }
+            .setNeutralButton(R.string.channel_members_short) { _, _ -> showChannelMembers() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showChannelMembers() {
+        val parts = try { participantIds } catch (_: Exception) { emptyList<String>() }
+        if (parts.isEmpty()) {
+            Toast.makeText(this, R.string.no_members, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val labels = parts.map { it.take(8) }.toTypedArray()
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(getString(R.string.channel_members_title, parts.size))
+            .setItems(labels, null)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
 }

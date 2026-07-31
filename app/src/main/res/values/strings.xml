@@ -133,4 +133,6 @@
     <string name="channel_members_short">الأعضاء</string>
     <string name="notif_channel_name">رسائل دردشة العرب</string>
     <string name="notif_channel_desc">إشعارات الرسائل الجديدة</string>
+    <string name="error_username_format">اسم المستخدم: حروف إنجليزية وأرقام فقط (3-20)</string>
+    <string name="error_username_taken">اسم المستخدم مستخدم مسبقاً</string>
 </resources>
