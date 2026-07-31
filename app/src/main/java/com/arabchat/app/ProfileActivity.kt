@@ -53,8 +53,6 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var tvContactUsername: TextView
     private lateinit var tvContactBio: TextView
     private lateinit var tvContactGender: TextView
-    private var contactUid: String? = null
-    private var contactBlocked = false
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -108,7 +106,6 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun setupContactMode(uid: String, name: String, isGroup: Boolean) {
         isOwnProfile = false
-        contactUid = uid
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
@@ -157,50 +154,7 @@ class ProfileActivity : AppCompatActivity() {
                     else -> "—"
                 }
 
-                
                 showAvatar(profile?.avatarUrl)
-
-                val tvBlock = findViewById<TextView?>(R.id.tvBlockUser)
-                val me = auth.currentUser?.uid
-                if (tvBlock != null && me != null && !isGroup) {
-                    tvBlock.visibility = android.view.View.VISIBLE
-                    BlockManager.isBlocked(me, uid) { blocked ->
-                        contactBlocked = blocked
-                        tvBlock.text = getString(if (blocked) R.string.unblock_user else R.string.block_user)
-                    }
-                    tvBlock.setOnClickListener {
-                        val target = contactUid ?: return@setOnClickListener
-                        if (contactBlocked) {
-                            BlockManager.unblockUser(me, target) { ok, err ->
-                                if (ok) {
-                                    contactBlocked = false
-                                    tvBlock.text = getString(R.string.block_user)
-                                    Toast.makeText(this, R.string.user_unblocked, Toast.LENGTH_SHORT).show()
-                                } else {
-                                    Toast.makeText(this, err ?: "خطأ", Toast.LENGTH_LONG).show()
-                                }
-                            }
-                        } else {
-                            androidx.appcompat.app.AlertDialog.Builder(this)
-                                .setTitle(R.string.block_user)
-                                .setMessage(R.string.block_confirm)
-                                .setPositiveButton(R.string.block_user) { _, _ ->
-                                    BlockManager.blockUser(me, target) { ok, err ->
-                                        if (ok) {
-                                            contactBlocked = true
-                                            tvBlock.text = getString(R.string.unblock_user)
-                                            Toast.makeText(this, R.string.user_blocked, Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            Toast.makeText(this, err ?: "خطأ", Toast.LENGTH_LONG).show()
-                                        }
-                                    }
-                                }
-                                .setNegativeButton(android.R.string.cancel, null)
-                                .show()
-                        }
-                    }
-                }
-
             }
             .addOnFailureListener {
                 tvContactBio.text = getString(R.string.no_bio)
@@ -291,58 +245,6 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveProfile(uid: String) {
-        // username rules injected
-        val _unameCheck = etUsername.text.toString().trim().replace(" ", "")
-            Toast.makeText(this, R.string.error_username_format, Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val displayName = etDisplayName.text.toString().trim()
-        val username = etUsername.text.toString().trim().replace(" ", "")
-        val bio = etBio.text.toString().trim()
-        val gender = when {
-            radioMale.isChecked -> "male"
-            radioFemale.isChecked -> "female"
-            else -> ""
-        }
-
-        if (displayName.isEmpty()) {
-            Toast.makeText(this, getString(R.string.error_username_empty), Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val _uname = etUsername.text.toString().trim().replace(" ", "")
-        UsernameRules.checkUnique(_uname, uid) { unique ->
-                Toast.makeText(this, R.string.error_username_taken, Toast.LENGTH_SHORT).show()
-                return@checkUnique
-            }
-        tvSaveProfile.isEnabled = false
-        progressSave.visibility = View.VISIBLE
-
-        val data = hashMapOf<String, Any>(
-            "displayName" to displayName,
-            "username" to username,
-            "bio" to bio,
-            "gender" to gender
-        )
-
-        db.collection("users").document(uid)
-            .set(data, SetOptions.merge())
-            .addOnSuccessListener {
-                progressSave.visibility = View.GONE
-                tvSaveProfile.isEnabled = true
-                tvProfileAvatar.text = displayName.take(1).uppercase()
-                Toast.makeText(this, getString(R.string.profile_updated), Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { e ->
-                progressSave.visibility = View.GONE
-                tvSaveProfile.isEnabled = true
-                Toast.makeText(this, e.message ?: getString(R.string.error_username_empty), Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
     private fun uploadAvatar(uri: Uri) {
         val uid = auth.currentUser?.uid ?: return
         progressPhoto.visibility = View.VISIBLE
@@ -368,4 +270,55 @@ class ProfileActivity : AppCompatActivity() {
             }
         }
     }
+    private fun saveProfile(uid: String) {
+        val displayName = etDisplayName.text.toString().trim()
+        val username = etUsername.text.toString().trim().replace(" ", "")
+        val bio = etBio.text.toString().trim()
+        val gender = when {
+            radioMale.isChecked -> "male"
+            radioFemale.isChecked -> "female"
+            else -> ""
+        }
+
+        if (displayName.isEmpty()) {
+            Toast.makeText(this, getString(R.string.error_username_empty), Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!UsernameRules.isValid(username)) {
+            Toast.makeText(this, R.string.error_username_format, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        tvSaveProfile.isEnabled = false
+        progressSave.visibility = android.view.View.VISIBLE
+
+        UsernameRules.checkUnique(username, uid) { unique ->
+            if (!unique) {
+                progressSave.visibility = android.view.View.GONE
+                tvSaveProfile.isEnabled = true
+                Toast.makeText(this, R.string.error_username_taken, Toast.LENGTH_SHORT).show()
+                return@checkUnique
+            }
+            val data = hashMapOf<String, Any>(
+                "displayName" to displayName,
+                "username" to username,
+                "bio" to bio,
+                "gender" to gender
+            )
+            db.collection("users").document(uid)
+                .set(data, SetOptions.merge())
+                .addOnSuccessListener {
+                    progressSave.visibility = android.view.View.GONE
+                    tvSaveProfile.isEnabled = true
+                    tvProfileAvatar.text = displayName.take(1).uppercase()
+                    Toast.makeText(this, getString(R.string.profile_updated), Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    progressSave.visibility = android.view.View.GONE
+                    tvSaveProfile.isEnabled = true
+                    Toast.makeText(this, e.message ?: "خطأ", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
 }
