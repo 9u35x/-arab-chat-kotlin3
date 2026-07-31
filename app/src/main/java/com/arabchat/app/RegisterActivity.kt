@@ -47,13 +47,17 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun attemptRegister() {
-        val username = etUsername.text.toString().trim()
+        val username = etUsername.text.toString().trim().replace(" ", "")
         val email = etEmail.text.toString().trim()
         val password = etPassword.text.toString().trim()
         val confirmPassword = etConfirmPassword.text.toString().trim()
 
         if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             Toast.makeText(this, R.string.error_empty_fields, Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (!UsernameRules.isValid(username) || username.length < 3) {
+            Toast.makeText(this, R.string.error_username_format, Toast.LENGTH_SHORT).show()
             return
         }
         if (password != confirmPassword) {
@@ -66,34 +70,42 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         setLoading(true)
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val uid = auth.currentUser?.uid
-                    val userData = hashMapOf(
-                        "username" to username,
-                        "email" to email
-                    )
-                    if (uid != null) {
-                        db.collection("users").document(uid)
-                            .set(userData)
-                            .addOnCompleteListener {
-                                setLoading(false)
-                                goHome()
-                            }
+        UsernameRules.checkUnique(username, "") { unique ->
+            if (!unique) {
+                setLoading(false)
+                Toast.makeText(this, R.string.error_username_taken, Toast.LENGTH_SHORT).show()
+                return@checkUnique
+            }
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val uid = auth.currentUser?.uid
+                        val userData = hashMapOf(
+                            "username" to username,
+                            "displayName" to username,
+                            "email" to email
+                        )
+                        if (uid != null) {
+                            db.collection("users").document(uid)
+                                .set(userData)
+                                .addOnCompleteListener {
+                                    setLoading(false)
+                                    goHome()
+                                }
+                        } else {
+                            setLoading(false)
+                            goHome()
+                        }
                     } else {
                         setLoading(false)
-                        goHome()
+                        Toast.makeText(
+                            this,
+                            task.exception?.localizedMessage ?: "تعذر إنشاء الحساب",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
-                } else {
-                    setLoading(false)
-                    Toast.makeText(
-                        this,
-                        task.exception?.localizedMessage ?: "تعذر إنشاء الحساب",
-                        Toast.LENGTH_LONG
-                    ).show()
                 }
-            }
+        }
     }
 
     private fun goHome() {
