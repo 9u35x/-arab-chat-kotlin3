@@ -37,6 +37,8 @@ class ChatActivity : AppCompatActivity() {
     private var cachedSenderName: String? = null
     private val senderNameCache = mutableMapOf<String, String>()
     private var peerUid: String? = null
+    private var channelDescription: String? = null
+    private var participantIds: List<String> = emptyList()
     private var otherUserId: String? = null
     private var isAdmin: Boolean = false
     private var isMember: Boolean = true
@@ -142,7 +144,9 @@ class ChatActivity : AppCompatActivity() {
         }
         chatRef.get().addOnSuccessListener { doc ->
             chatType = doc.getString("type") ?: "direct"
+            channelDescription = doc.getString("description")
             val parts = (doc.get("participants") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+            participantIds = parts
             if (chatType == "direct") {
                 loadPeerHeader(parts)
             } else {
