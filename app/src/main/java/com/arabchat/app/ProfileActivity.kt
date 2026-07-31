@@ -272,7 +272,7 @@ class ProfileActivity : AppCompatActivity() {
     }
     private fun saveProfile(uid: String) {
         val displayName = etDisplayName.text.toString().trim()
-        val username = etUsername.text.toString().trim().replace(" ", "")
+        val username = UsernameRules.normalize(etUsername.text.toString())
         val bio = etBio.text.toString().trim()
         val gender = when {
             radioMale.isChecked -> "male"

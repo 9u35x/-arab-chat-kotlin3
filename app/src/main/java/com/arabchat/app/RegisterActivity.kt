@@ -47,7 +47,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun attemptRegister() {
-        val username = etUsername.text.toString().trim().replace(" ", "")
+        val username = UsernameRules.normalize(etUsername.text.toString())
         val email = etEmail.text.toString().trim()
         val password = etPassword.text.toString().trim()
         val confirmPassword = etConfirmPassword.text.toString().trim()
