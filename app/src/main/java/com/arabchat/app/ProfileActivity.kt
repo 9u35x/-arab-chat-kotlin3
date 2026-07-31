@@ -292,6 +292,12 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun saveProfile(uid: String) {
+        // username rules injected
+        val _unameCheck = etUsername.text.toString().trim().replace(" ", "")
+            Toast.makeText(this, R.string.error_username_format, Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val displayName = etDisplayName.text.toString().trim()
         val username = etUsername.text.toString().trim().replace(" ", "")
         val bio = etBio.text.toString().trim()
@@ -306,6 +312,11 @@ class ProfileActivity : AppCompatActivity() {
             return
         }
 
+        val _uname = etUsername.text.toString().trim().replace(" ", "")
+        UsernameRules.checkUnique(_uname, uid) { unique ->
+                Toast.makeText(this, R.string.error_username_taken, Toast.LENGTH_SHORT).show()
+                return@checkUnique
+            }
         tvSaveProfile.isEnabled = false
         progressSave.visibility = View.VISIBLE
 
@@ -329,6 +340,7 @@ class ProfileActivity : AppCompatActivity() {
                 tvSaveProfile.isEnabled = true
                 Toast.makeText(this, e.message ?: getString(R.string.error_username_empty), Toast.LENGTH_SHORT).show()
             }
+        }
     }
 
     private fun uploadAvatar(uri: Uri) {
