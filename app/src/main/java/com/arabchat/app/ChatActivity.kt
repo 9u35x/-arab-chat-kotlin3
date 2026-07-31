@@ -652,6 +652,14 @@ class ChatActivity : AppCompatActivity() {
     private fun showChannelSettingsDialog() {
         // Channel settings — NOT own profile
         val view = layoutInflater.inflate(R.layout.dialog_channel_settings, null)
+        view.findViewById<TextView>(R.id.tvChangeChannelPhoto)?.setOnClickListener {
+            pendingChannelPhoto = true
+            channelPhotoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+        view.findViewById<android.widget.ImageView>(R.id.ivChannelAvatar)?.setOnClickListener {
+            pendingChannelPhoto = true
+            channelPhotoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
         val etName = view.findViewById<android.widget.EditText>(R.id.etEditChannelName)
         val etDesc = view.findViewById<android.widget.EditText>(R.id.etEditChannelDesc)
         etName?.setText(chatTitle)
