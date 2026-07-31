@@ -38,6 +38,8 @@ class ChatActivity : AppCompatActivity() {
     private val senderNameCache = mutableMapOf<String, String>()
     private var peerUid: String? = null
     private var channelDescription: String? = null
+    private var channelAvatarUrl: String? = null
+    private var pendingChannelPhoto: Boolean = false
     private var participantIds: List<String> = emptyList()
     private var otherUserId: String? = null
     private var isAdmin: Boolean = false
@@ -71,6 +73,16 @@ class ChatActivity : AppCompatActivity() {
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) startRecording() else Toast.makeText(this, "نحتاج إذن الميكروفون", Toast.LENGTH_SHORT).show()
+    }
+
+
+    private val channelPhotoLauncher = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null && pendingChannelPhoto) {
+            pendingChannelPhoto = false
+            uploadChannelAvatar(uri)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -145,6 +157,7 @@ class ChatActivity : AppCompatActivity() {
         chatRef.get().addOnSuccessListener { doc ->
             chatType = doc.getString("type") ?: "direct"
             channelDescription = doc.getString("description")
+            channelAvatarUrl = doc.getString("avatarUrl")
             val parts = (doc.get("participants") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
             participantIds = parts
             if (chatType == "direct") {
@@ -683,6 +696,22 @@ class ChatActivity : AppCompatActivity() {
             .setItems(labels, null)
             .setPositiveButton(android.R.string.ok, null)
             .show()
+    }
+
+    private fun uploadChannelAvatar(uri: Uri) {
+        val path = "channel_avatars/" + chatId + ".jpg"
+        Toast.makeText(this, R.string.uploading_photo, Toast.LENGTH_SHORT).show()
+        SupabaseStorage.uploadFromUri(this, uri, path, "image/jpeg") { publicUrl, error ->
+            if (publicUrl != null) {
+                channelAvatarUrl = publicUrl
+                chatRef.set(mapOf("avatarUrl" to publicUrl), com.google.firebase.firestore.SetOptions.merge())
+                    .addOnSuccessListener {
+                        Toast.makeText(this, R.string.channel_updated, Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                Toast.makeText(this, error ?: "فشل رفع صورة القناة", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
 }
