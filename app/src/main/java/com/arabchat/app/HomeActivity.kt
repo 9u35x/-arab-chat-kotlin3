@@ -25,6 +25,13 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        BanGuard.checkBanned { banned, reason ->
+            if (banned) {
+                com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
+                startActivity(android.content.Intent(this, LoginActivity::class.java))
+                finish()
+            }
+        }
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 

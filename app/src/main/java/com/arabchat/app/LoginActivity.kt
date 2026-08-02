@@ -103,7 +103,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun goHome() {
-        startActivity(Intent(this, HomeActivity::class.java))
+        BanGuard.checkBanned { banned, reason ->
+                        if (banned) {
+                            FirebaseAuth.getInstance().signOut()
+                        } else {
+                            startActivity(Intent(this, HomeActivity::class.java))
+                            finish()
+                        }
+                    }
         finish()
     }
 }

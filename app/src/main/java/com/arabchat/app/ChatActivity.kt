@@ -345,6 +345,17 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun sendTextMessage() {
+        BanGuard.checkBanned { banned, _ ->
+            if (banned) {
+                Toast.makeText(this, "حسابك محظور", Toast.LENGTH_SHORT).show()
+                return@checkBanned
+            }
+            sendTextMessageAfterBanCheck()
+        }
+    }
+
+    private fun sendTextMessageAfterBanCheck() {
+
         if (!SpamGuard.canSend()) {
             Toast.makeText(this, R.string.spam_blocked, Toast.LENGTH_SHORT).show()
             return

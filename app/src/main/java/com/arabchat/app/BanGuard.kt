@@ -10,7 +10,10 @@ object BanGuard {
             onResult(false, null)
             return
         }
-        FirebaseFirestore.getInstance().collection("users").document(uid).get()
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(uid)
+            .get()
             .addOnSuccessListener { doc ->
                 val banned = doc.getBoolean("banned") == true
                 val reason = doc.getString("bannedReason")
