@@ -140,6 +140,14 @@ class ChatActivity : AppCompatActivity() {
         tvDeleteChat?.setOnClickListener { confirmDeleteChat() }
         tvSend.setOnClickListener { sendTextMessage() }
 
+        tvTitle.setOnLongClickListener {
+            val peer = try { otherUserId } catch (_: Exception) { null }
+                ?: try { peerUid } catch (_: Exception) { null }
+            if (chatType == "direct" && !peer.isNullOrBlank()) {
+                showReportDialog(peer)
+                true
+            } else false
+        }
         tvTitle.setOnClickListener {
             if (chatType == "channel" || chatType == "group") {
                 if (isAdmin) showChannelSettingsDialog() else showChannelMembers()
@@ -324,6 +332,11 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun sendTextMessage() {
+        if (!SpamGuard.canSend()) {
+            Toast.makeText(this, R.string.spam_blocked, Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val text = etMessage.text.toString().trim()
         if (text.isEmpty()) return
 
@@ -720,6 +733,33 @@ class ChatActivity : AppCompatActivity() {
                 Toast.makeText(this, error ?: "فشل رفع صورة القناة", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun showReportDialog(reportedUid: String) {
+        if (reportedUid.isBlank()) return
+        val reasons = arrayOf(
+            getString(R.string.report_reason_spam),
+            getString(R.string.report_reason_abuse),
+            getString(R.string.report_reason_scam),
+            getString(R.string.report_reason_other)
+        )
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.report_title)
+            .setItems(reasons) { _, which ->
+                ReportHelper.submitReport(
+                    reportedUserId = reportedUid,
+                    reason = reasons[which],
+                    chatId = chatId
+                ) { ok, err ->
+                    Toast.makeText(
+                        this,
+                        if (ok) getString(R.string.report_sent) else (err ?: getString(R.string.report_failed)),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
 }

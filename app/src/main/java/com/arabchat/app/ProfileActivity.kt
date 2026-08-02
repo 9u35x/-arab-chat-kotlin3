@@ -321,4 +321,67 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    private fun changePassword() {
+        val input = android.widget.EditText(this).apply {
+            hint = getString(R.string.new_password)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+        val input2 = android.widget.EditText(this).apply {
+            hint = getString(R.string.confirm_password)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+        val box = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 0)
+            addView(input)
+            addView(input2)
+        }
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.change_password)
+            .setView(box)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val p1 = input.text.toString()
+                val p2 = input2.text.toString()
+                if (p1.length < 6) {
+                    Toast.makeText(this, R.string.password_too_short, Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                if (p1 != p2) {
+                    Toast.makeText(this, R.string.password_mismatch, Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                auth.currentUser?.updatePassword(p1)
+                    ?.addOnSuccessListener {
+                        Toast.makeText(this, R.string.password_changed, Toast.LENGTH_SHORT).show()
+                    }
+                    ?.addOnFailureListener { e ->
+                        Toast.makeText(this, e.message ?: getString(R.string.password_change_failed), Toast.LENGTH_LONG).show()
+                    }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showReportFromProfile(reportedUid: String) {
+        val reasons = arrayOf(
+            getString(R.string.report_reason_spam),
+            getString(R.string.report_reason_abuse),
+            getString(R.string.report_reason_scam),
+            getString(R.string.report_reason_other)
+        )
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.report_title)
+            .setItems(reasons) { _, which ->
+                ReportHelper.submitReport(reportedUid, reasons[which]) { ok, err ->
+                    Toast.makeText(
+                        this,
+                        if (ok) getString(R.string.report_sent) else (err ?: getString(R.string.report_failed)),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
 }

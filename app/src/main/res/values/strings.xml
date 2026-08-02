@@ -135,4 +135,20 @@
     <string name="notif_channel_desc">إشعارات الرسائل الجديدة</string>
     <string name="error_username_format">اسم المستخدم: حروف إنجليزية وأرقام فقط (3-20)</string>
     <string name="error_username_taken">اسم المستخدم مستخدم مسبقاً</string>
+    <string name="report_user">إبلاغ</string>
+    <string name="report_title">الإبلاغ عن مستخدم</string>
+    <string name="report_sent">تم إرسال البلاغ</string>
+    <string name="report_failed">فشل إرسال البلاغ</string>
+    <string name="report_reason_spam">رسائل مزعجة (سبام)</string>
+    <string name="report_reason_abuse">إساءة أو تحرش</string>
+    <string name="report_reason_scam">احتيال أو انتحال</string>
+    <string name="report_reason_other">سبب آخر</string>
+    <string name="change_password">تغيير كلمة المرور</string>
+    <string name="new_password">كلمة المرور الجديدة</string>
+    <string name="confirm_password">تأكيد كلمة المرور</string>
+    <string name="password_changed">تم تغيير كلمة المرور</string>
+    <string name="password_change_failed">فشل تغيير كلمة المرور</string>
+    <string name="password_too_short">كلمة المرور يجب أن تكون 6 أحرف على الأقل</string>
+    <string name="password_mismatch">كلمتا المرور غير متطابقتين</string>
+    <string name="spam_blocked">تم إرسال رسائل كثيرة. انتظر دقيقة ثم أعد المحاولة.</string>
 </resources>
