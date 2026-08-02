@@ -18,6 +18,7 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+        findViewById<TextView?>(R.id.tvChangePassword)?.setOnClickListener { changePassword() }
 
         auth = FirebaseAuth.getInstance()
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -173,4 +174,46 @@ class SettingsActivity : AppCompatActivity() {
         const val KEY_READ_RECEIPTS = "read_receipts_enabled"
         const val KEY_ENTER_SEND = "enter_to_send"
     }
+    private fun changePassword() {
+        val input = android.widget.EditText(this).apply {
+            hint = "كلمة المرور الجديدة"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+        val input2 = android.widget.EditText(this).apply {
+            hint = "تأكيد كلمة المرور"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+        val box = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 0)
+            addView(input)
+            addView(input2)
+        }
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("تغيير كلمة المرور")
+            .setView(box)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val p1 = input.text.toString()
+                val p2 = input2.text.toString()
+                if (p1.length < 6) {
+                    Toast.makeText(this, "6 أحرف على الأقل", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                if (p1 != p2) {
+                    Toast.makeText(this, "غير متطابقتين", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                    ?.updatePassword(p1)
+                    ?.addOnSuccessListener {
+                        Toast.makeText(this, "تم تغيير كلمة المرور", Toast.LENGTH_SHORT).show()
+                    }
+                    ?.addOnFailureListener { e ->
+                        Toast.makeText(this, e.message ?: "فشل", Toast.LENGTH_LONG).show()
+                    }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
 }

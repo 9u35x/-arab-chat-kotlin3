@@ -150,7 +150,19 @@
             android:text="@string/channels_title" android:textColor="@color/textPrimaryDark" android:textSize="15sp"
             android:clickable="true" android:focusable="true" />
 
-        <TextView android:id="@+id/tvBlocked" android:layout_width="match_parent" android:layout_height="wrap_content"
+        <TextView     <TextView
+        android:id="@+id/tvChangePassword"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:gravity="center_vertical|end"
+        android:padding="16dp"
+        android:text="تغيير كلمة المرور"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="8dp"
+        android:background="#1A1A24" />
+
+    <TextView
+        android:id="@+id/tvBlocked" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="10dp" android:layout_marginStart="14dp" android:layout_marginEnd="14dp"
             android:background="@color/surfaceElevated" android:padding="16dp"
             android:text="@string/blocked_users" android:textColor="@color/textPrimaryDark" android:textSize="15sp"
