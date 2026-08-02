@@ -1,8 +1,5 @@
 package com.arabchat.app
 
-/**
- * حد إرسال محلي: 20 رسالة كل 60 ثانية.
- */
 object SpamGuard {
     private const val MAX = 20
     private const val WINDOW_MS = 60_000L
@@ -18,6 +15,4 @@ object SpamGuard {
         times.addLast(now)
         return true
     }
-
-    fun blockedMessage(): String = "تم إرسال رسائل كثيرة. انتظر دقيقة ثم أعد المحاولة."
 }

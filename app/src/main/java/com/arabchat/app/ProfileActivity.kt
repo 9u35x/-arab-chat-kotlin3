@@ -61,6 +61,26 @@ class ProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
+        findViewById<View?>(R.id.tvProfileAvatar)?.setOnLongClickListener {
+            val tid = intent.getStringExtra("uid") ?: intent.getStringExtra("userId")
+            val me = FirebaseAuth.getInstance().currentUser?.uid
+            if (!tid.isNullOrBlank() && tid != me) {
+                showReportFromProfile(tid); true
+            } else {
+                changePassword(); true
+            }
+        }
+        // changePasswordBind — visible via long-press on Save or Settings text
+        findViewById<View?>(R.id.tvSaveProfile)?.setOnLongClickListener {
+            changePassword(); true
+        }
+        findViewById<View?>(R.id.tvSettings)?.setOnLongClickListener {
+            changePassword(); true
+        }
+        findViewById<View?>(R.id.tvLogout)?.setOnLongClickListener {
+            // report only when viewing someone else
+            true
+        }
 
         tvBack = findViewById(R.id.tvBack)
         tvProfileTitle = findViewById(R.id.tvProfileTitle)

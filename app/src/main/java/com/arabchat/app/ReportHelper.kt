@@ -1,13 +1,10 @@
 package com.arabchat.app
 
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 object ReportHelper {
-    private val db get() = FirebaseFirestore.getInstance()
-
     fun submitReport(
         reportedUserId: String,
         reason: String,
@@ -22,7 +19,7 @@ object ReportHelper {
             return
         }
         if (reportedUserId.isBlank() || reportedUserId == me) {
-            onDone(false, "لا يمكن الإبلاغ عن هذا الحساب")
+            onDone(false, "لا يمكن الإبلاغ")
             return
         }
         val data = hashMapOf(
@@ -35,7 +32,7 @@ object ReportHelper {
             "status" to "new",
             "createdAt" to FieldValue.serverTimestamp()
         )
-        db.collection("reports").add(data)
+        FirebaseFirestore.getInstance().collection("reports").add(data)
             .addOnSuccessListener { onDone(true, null) }
             .addOnFailureListener { e -> onDone(false, e.message) }
     }

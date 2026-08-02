@@ -137,6 +137,19 @@ class ChatActivity : AppCompatActivity() {
 
         tvBack.setOnClickListener { finish() }
         val tvDeleteChat: TextView? = findViewById(R.id.tvDeleteChat)
+        // Report button: long-press Delete opens report for direct peer
+        tvDeleteChat?.setOnLongClickListener {
+            val peer = try { otherUserId } catch (_: Exception) { null }
+                ?: try { peerUid } catch (_: Exception) { null }
+            if (!peer.isNullOrBlank() && chatType == "direct") {
+                showReportDialog(peer)
+                true
+            } else {
+                Toast.makeText(this, "الإبلاغ للمحادثات الخاصة", Toast.LENGTH_SHORT).show()
+                true
+            }
+        }
+        // tvReportBind
         tvDeleteChat?.setOnClickListener { confirmDeleteChat() }
         tvSend.setOnClickListener { sendTextMessage() }
 
