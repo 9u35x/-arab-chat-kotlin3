@@ -248,7 +248,17 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/tvBlockUser"
+                    <TextView
+        android:id="@+id/tvReportUser"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="إبلاغ"
+        android:textColor="#FFB74D"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+    <TextView
+        android:id="@+id/tvBlockUser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"

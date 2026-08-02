@@ -61,6 +61,14 @@ class ProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
+        findViewById<TextView?>(R.id.tvReportUser)?.setOnClickListener {
+            val tid = intent.getStringExtra("uid")
+                ?: intent.getStringExtra("userId")
+                ?: intent.getStringExtra("peerUid")
+                ?: ""
+            if (tid.isNotBlank()) showReportFromProfile(tid)
+            else Toast.makeText(this, "لا يمكن الإبلاغ", Toast.LENGTH_SHORT).show()
+        }
         findViewById<View?>(R.id.tvProfileAvatar)?.setOnLongClickListener {
             val tid = intent.getStringExtra("uid") ?: intent.getStringExtra("userId")
             val me = FirebaseAuth.getInstance().currentUser?.uid
