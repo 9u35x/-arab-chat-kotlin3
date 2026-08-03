@@ -35,11 +35,28 @@ class HomeActivity : AppCompatActivity() {
             }
         } catch (_: Exception) {}
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            val token = task.result ?: return@addOnCompleteListener
-            val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnCompleteListener
+                android.widget.Toast.makeText(this, "FCM فشل: " + (task.exception?.message ?: "?"), android.widget.Toast.LENGTH_LONG).show()
+                return@addOnCompleteListener
+            }
+            val token = task.result
+            if (token.isNullOrBlank()) {
+                android.widget.Toast.makeText(this, "FCM توكن فاضي", android.widget.Toast.LENGTH_LONG).show()
+                return@addOnCompleteListener
+            }
+            val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            if (uid.isNullOrBlank()) {
+                android.widget.Toast.makeText(this, "FCM: لا يوجد مستخدم", android.widget.Toast.LENGTH_LONG).show()
+                return@addOnCompleteListener
+            }
             com.google.firebase.firestore.FirebaseFirestore.getInstance()
                 .collection("users").document(uid)
-                .set(mapOf("fcmToken" to token), SetOptions.merge())
+                .set(mapOf("fcmToken" to token), com.google.firebase.firestore.SetOptions.merge())
+                .addOnSuccessListener {
+                    android.widget.Toast.makeText(this, "تم حفظ توكن الإشعار", android.widget.Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    android.widget.Toast.makeText(this, "حفظ التوكن فشل: " + e.message, android.widget.Toast.LENGTH_LONG).show()
+                }
         }
         BanGuard.checkBanned { banned, reason ->
             if (banned) {
