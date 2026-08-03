@@ -21,33 +21,25 @@ object FcmTokenSaver {
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
-                Toast.makeText(
-                    activity,
-                    "FCM فشل: " + (task.exception?.message ?: "?"),
-                    Toast.LENGTH_LONG
-                ).show()
+                
                 return@addOnCompleteListener
             }
             val token = task.result
             if (token.isNullOrBlank()) {
-                Toast.makeText(activity, "FCM توكن فاضي", Toast.LENGTH_LONG).show()
+                
                 return@addOnCompleteListener
             }
             val uid = FirebaseAuth.getInstance().currentUser?.uid
             if (uid.isNullOrBlank()) {
-                Toast.makeText(activity, "FCM: لا يوجد مستخدم", Toast.LENGTH_LONG).show()
+                
                 return@addOnCompleteListener
             }
             FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(uid)
                 .set(mapOf("fcmToken" to token), SetOptions.merge())
-                .addOnSuccessListener {
-                    Toast.makeText(activity, "تم حفظ توكن الإشعار", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(activity, "حفظ التوكن فشل: " + e.message, Toast.LENGTH_LONG).show()
-                }
+                .addOnSuccessListener { /* token saved silently */ }
+                .addOnFailureListener { /* ignore */ }
         }
     }
 }
