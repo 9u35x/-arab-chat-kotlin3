@@ -32,7 +32,6 @@ class HomeActivity : AppCompatActivity() {
         FcmTokenSaver.save(this)
             val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
             if (uid.isNullOrBlank()) {
-                return@addOnCompleteListener
             }
             com.google.firebase.firestore.FirebaseFirestore.getInstance()
                 .collection("users").document(uid)

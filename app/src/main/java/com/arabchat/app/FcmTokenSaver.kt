@@ -46,11 +46,7 @@ object FcmTokenSaver {
                     Toast.makeText(activity, "تم حفظ توكن الإشعار", Toast.LENGTH_SHORT).show()
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(
-                        activity,
-                        "حفظ التوكن فشل: " + e.message,
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(activity, "حفظ التوكن فشل: " + e.message, Toast.LENGTH_LONG).show()
                 }
         }
     }
