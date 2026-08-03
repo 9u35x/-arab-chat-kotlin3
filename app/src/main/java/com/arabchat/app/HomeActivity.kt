@@ -28,15 +28,14 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-
-
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 33) {
+                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
+            }
+        } catch (_: Exception) {}
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
-                android.widget.Toast.makeText(
-                    this@HomeActivity,
-                    "FCM فشل: " + (task.exception?.message ?: "?"),
-                    android.widget.Toast.LENGTH_LONG
-                ).show()
+                android.widget.Toast.makeText(this@HomeActivity, "FCM فشل: " + (task.exception?.message ?: "?"), android.widget.Toast.LENGTH_LONG).show()
                 return@addOnCompleteListener
             }
             val token = task.result
@@ -60,12 +59,7 @@ class HomeActivity : AppCompatActivity() {
                 }
         }
 
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= 33) {
-                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
-            }
-        } catch (_: Exception) {}
-            val token = task.result
+val token = task.result
             if (token.isNullOrBlank()) {
                 android.widget.Toast.makeText(this, "FCM توكن فاضي", android.widget.Toast.LENGTH_LONG).show()
                 return@addOnCompleteListener
@@ -227,7 +221,7 @@ class HomeActivity : AppCompatActivity() {
                     batch.delete(ref)
                     batch.commit()
                         .addOnSuccessListener {
-                            android.widget.Toast.makeText(this, R.string.chat_deleted, android.widget.Toast.LENGTH_SHORT).show()
+                            android.widget.Toast.makeText(this@HomeActivity, R.string.chat_deleted, android.widget.Toast.LENGTH_SHORT).show()
                         }
                 }
                 .addOnFailureListener {
@@ -238,7 +232,7 @@ class HomeActivity : AppCompatActivity() {
             participants.remove(myUid)
             ref.update("participants", participants)
                 .addOnSuccessListener {
-                    android.widget.Toast.makeText(this, R.string.left_chat, android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(this@HomeActivity, R.string.left_chat, android.widget.Toast.LENGTH_SHORT).show()
                 }
         }
     }
