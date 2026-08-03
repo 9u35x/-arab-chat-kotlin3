@@ -30,14 +30,13 @@ class HomeActivity : AppCompatActivity() {
 
 
         FcmTokenSaver.save(this)
-            val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
-            if (uid.isNullOrBlank()) {
-            }
-            com.google.firebase.firestore.FirebaseFirestore.getInstance()
-                .collection("users").document(uid)
-                .addOnFailureListener { e ->
-                }
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        if (uid.isNullOrBlank()) {
         }
+        com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            .collection("users").document(uid)
+            .addOnFailureListener { e ->
+            }
         BanGuard.checkBanned { banned, reason ->
             if (banned) {
                 com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
