@@ -1,5 +1,8 @@
 package com.arabchat.app
 
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.firestore.SetOptions
+
 import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
@@ -25,6 +28,19 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 33) {
+                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
+            }
+        } catch (_: Exception) {}
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            val token = task.result ?: return@addOnCompleteListener
+            val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnCompleteListener
+            com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                .collection("users").document(uid)
+                .set(mapOf("fcmToken" to token), SetOptions.merge())
+        }
         BanGuard.checkBanned { banned, reason ->
             if (banned) {
                 com.google.firebase.auth.FirebaseAuth.getInstance().signOut()
