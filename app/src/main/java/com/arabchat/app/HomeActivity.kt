@@ -29,15 +29,42 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
 
 
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                android.widget.Toast.makeText(
+                    this@HomeActivity,
+                    "FCM فشل: " + (task.exception?.message ?: "?"),
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+                return@addOnCompleteListener
+            }
+            val token = task.result
+            if (token.isNullOrBlank()) {
+                android.widget.Toast.makeText(this@HomeActivity, "FCM توكن فاضي", android.widget.Toast.LENGTH_LONG).show()
+                return@addOnCompleteListener
+            }
+            val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            if (uid.isNullOrBlank()) {
+                android.widget.Toast.makeText(this@HomeActivity, "FCM: لا يوجد مستخدم", android.widget.Toast.LENGTH_LONG).show()
+                return@addOnCompleteListener
+            }
+            com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                .collection("users").document(uid)
+                .set(mapOf("fcmToken" to token), com.google.firebase.firestore.SetOptions.merge())
+                .addOnSuccessListener {
+                    android.widget.Toast.makeText(this@HomeActivity, "تم حفظ توكن الإشعار", android.widget.Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    android.widget.Toast.makeText(this@HomeActivity, "حفظ التوكن فشل: " + e.message, android.widget.Toast.LENGTH_LONG).show()
+                }
+        }
+
         try {
             if (android.os.Build.VERSION.SDK_INT >= 33) {
                 requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 1001)
             }
         } catch (_: Exception) {}
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                android.widget.Toast.makeText(this, "FCM فشل: " + (task.exception?.message ?: "?"), android.widget.Toast.LENGTH_LONG).show()
-                return@addOnCompleteListener
-            }
             val token = task.result
             if (token.isNullOrBlank()) {
                 android.widget.Toast.makeText(this, "FCM توكن فاضي", android.widget.Toast.LENGTH_LONG).show()
