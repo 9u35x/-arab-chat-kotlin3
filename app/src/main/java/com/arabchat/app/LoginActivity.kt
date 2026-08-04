@@ -103,14 +103,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun goHome() {
-        BanGuard.checkBanned { banned, reason ->
-                        if (banned) {
-                            FirebaseAuth.getInstance().signOut()
-                        } else {
-                            startActivity(Intent(this, HomeActivity::class.java))
-                            finish()
-                        }
-                    }
-        finish()
+        BanGuard.checkBanned { banned, _ ->
+            if (banned) {
+                FirebaseAuth.getInstance().signOut()
+                Toast.makeText(this, "حسابك محظور", Toast.LENGTH_LONG).show()
+            } else {
+                startActivity(Intent(this, HomeActivity::class.java))
+                finish()
+            }
+        }
     }
 }

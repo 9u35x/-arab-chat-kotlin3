@@ -84,7 +84,16 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/tvDeleteChat"
+            android:id="@+id/tvReportUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/report_user"
+        android:textColor="#FF6B6B"
+        android:padding="8dp"
+        android:visibility="gone"
+        tools:ignore="MissingConstraints" />
+    <TextView
+        android:id="@+id/tvDeleteChat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/delete"
