@@ -60,6 +60,8 @@ class HomeActivity : AppCompatActivity() {
         rvChats.layoutManager = LinearLayoutManager(this)
 
         // شريط القصص
+        val layoutStoriesBar = findViewById<android.view.View?>(R.id.layoutStoriesBar)
+        layoutStoriesBar?.visibility = android.view.View.VISIBLE
         val rvHomeStories = findViewById<RecyclerView?>(R.id.rvHomeStories)
         rvHomeStories?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         loadHomeStories(rvHomeStories)
@@ -207,12 +209,11 @@ class HomeActivity : AppCompatActivity() {
         val now = System.currentTimeMillis()
         storiesListener?.remove()
         storiesListener = db.collection("stories")
-            .whereEqualTo("status", "active")
             .addSnapshotListener { snap, err ->
                 if (err != null || snap == null) return@addSnapshotListener
                 val active = snap.documents.mapNotNull { d ->
                     d.toObject(Story::class.java)?.also { it.id = d.id }
-                }.filter { it.expiresAtMs > now }
+                }.filter { (it.status == "active" || it.status.isBlank()) && it.expiresAtMs > now }
 
                 // قصتي أولاً (حتى لو ما عندي قصة — عنصر "إضافة")
                 val mine = active.filter { it.userId == me }
