@@ -18,6 +18,22 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+        
+        findViewById<TextView?>(R.id.tvAboutApp)?.setOnClickListener {
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("عن التطبيق")
+                .setMessage("دردشة العرب\nتطبيق محادثة عربية\nالإصدار 1.0")
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
+        findViewById<TextView?>(R.id.tvPrivacyPolicy)?.setOnClickListener {
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("سياسة الخصوصية")
+                .setMessage("نحترم خصوصيتك.\nلا نبيع بياناتك.\nالرسائل تُخزَّن لتقديم خدمة الدردشة فقط.\nيمكنك طلب حذف حسابك عبر الإبلاغ للإدارة.")
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
+
         findViewById<TextView?>(R.id.tvChangePassword)?.setOnClickListener { changePassword() }
 
         auth = FirebaseAuth.getInstance()

@@ -151,6 +151,33 @@
             android:clickable="true" android:focusable="true" />
 
         <TextView
+        android:id="@+id/tvAboutApp"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:gravity="center_vertical|end"
+        android:padding="16dp"
+        android:text="عن التطبيق"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="12dp"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="14dp"
+        android:background="@color/surfaceElevated" />
+
+    <TextView
+        android:id="@+id/tvPrivacyPolicy"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:gravity="center_vertical|end"
+        android:padding="16dp"
+        android:text="سياسة الخصوصية"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginBottom="16dp"
+        android:background="@color/surfaceElevated" />
+
+    <TextView
         android:id="@+id/tvChangePassword"
         android:layout_width="match_parent"
         android:layout_height="52dp"
