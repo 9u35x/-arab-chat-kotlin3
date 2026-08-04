@@ -549,14 +549,9 @@ class ChatActivity : AppCompatActivity() {
         }
         val lower = url.lowercase()
         if (lower.contains(".mp4") || lower.contains(".mov") || lower.contains("video")) {
-            try {
-                val i = android.content.Intent(android.content.Intent.ACTION_VIEW)
-                i.setDataAndType(android.net.Uri.parse(url), "video/*")
-                i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(i)
-            } catch (e: Exception) {
-                Toast.makeText(this, "تعذر تشغيل الفيديو", Toast.LENGTH_SHORT).show()
-            }
+            startActivity(android.content.Intent(this, VideoPlayerActivity::class.java).apply {
+                putExtra(VideoPlayerActivity.EXTRA_URL, url)
+            })
             return
         }
         val intent = android.content.Intent(this, FullImageActivity::class.java)
