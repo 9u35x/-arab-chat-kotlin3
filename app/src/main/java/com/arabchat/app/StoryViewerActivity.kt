@@ -108,10 +108,19 @@ class StoryViewerActivity : AppCompatActivity() {
                 if (doc == null || !doc.exists()) return@addSnapshotListener
                 val viewers = (doc.get("viewers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
                 val likes = (doc.get("likes") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-                findViewById<TextView>(R.id.tvStoryViews).text = "👁 ${viewers.size}"
-                findViewById<TextView>(R.id.tvHeartCount).text = if (likes.isEmpty()) "" else likes.size.toString()
+                val vCount = viewers.size
+                val vText = if (vCount == 1) "👁 مشاهدة واحدة" else "👁 $vCount مشاهدة"
+                findViewById<TextView>(R.id.tvStoryViews).text = vText
+                findViewById<TextView?>(R.id.tvViewsBig)?.text = vText
+                findViewById<TextView>(R.id.tvHeartCount).text =
+                    if (likes.isEmpty()) "" else likes.size.toString()
                 liked = me in likes
                 findViewById<TextView>(R.id.tvHeart).text = if (liked) "❤️" else "🤍"
+                // صاحب القصة: القائمة تعرض المشاهدين
+                if (me == ownerId) {
+                    findViewById<TextView>(R.id.tvStoryViews).setOnClickListener { showViewers() }
+                    findViewById<TextView?>(R.id.tvViewsBig)?.setOnClickListener { showViewers() }
+                }
             }
     }
 
@@ -237,7 +246,38 @@ class StoryViewerActivity : AppCompatActivity() {
         db.collection("stories").document(storyId).get()
             .addOnSuccessListener { doc ->
                 val viewers = (doc.get("viewers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-                Toast.makeText(this, "المشاهدات: ${viewers.size}", Toast.LENGTH_LONG).show()
+                if (viewers.isEmpty()) {
+                    Toast.makeText(this, "لا مشاهدات بعد", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+                // جلب الأسماء
+                db.collection("users").whereIn("uid", viewers.take(10)).get()
+                    .addOnSuccessListener { us ->
+                        val names = us.documents.map {
+                            it.getString("displayName")
+                                ?: it.getString("username")
+                                ?: it.id.take(6)
+                        }
+                        val msg = if (names.isEmpty()) {
+                            "عدد المشاهدات: ${viewers.size}"
+                        } else {
+                            "المشاهدات (${viewers.size}):
+" + names.joinToString("
+")
+                        }
+                        AlertDialog.Builder(this)
+                            .setTitle("المشاهدون")
+                            .setMessage(msg)
+                            .setPositiveButton("حسناً", null)
+                            .show()
+                    }
+                    .addOnFailureListener {
+                        AlertDialog.Builder(this)
+                            .setTitle("المشاهدون")
+                            .setMessage("عدد المشاهدات: ${viewers.size}")
+                            .setPositiveButton("حسناً", null)
+                            .show()
+                    }
             }
     }
 
