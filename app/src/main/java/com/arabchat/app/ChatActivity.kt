@@ -795,4 +795,53 @@ class ChatActivity : AppCompatActivity() {
             .show()
     }
 
+
+
+    private fun showReactionSheet(message: Message) {
+        if (message.id.isEmpty()) return
+        val emojis = arrayOf("❤️", "😂", "👍", "😮", "😢", "🔥", "👏", "🗑️")
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("تفاعل")
+            .setItems(emojis) { _, which ->
+                val choice = emojis[which]
+                if (choice == "🗑️") {
+                    confirmDeleteMessage(message)
+                } else {
+                    toggleReaction(message, choice)
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun toggleReaction(message: Message, emoji: String) {
+        val me = auth.currentUser?.uid ?: return
+        val ref = messagesRef.document(message.id)
+        ref.get().addOnSuccessListener { doc ->
+            if (!doc.exists()) return@addOnSuccessListener
+            @Suppress("UNCHECKED_CAST")
+            val raw = (doc.get("reactions") as? Map<String, Any?>) ?: emptyMap()
+            val reactions = linkedMapOf<String, MutableList<String>>()
+            for ((k, v) in raw) {
+                val list = when (v) {
+                    is List<*> -> v.mapNotNull { it as? String }.toMutableList()
+                    else -> mutableListOf()
+                }
+                reactions[k] = list
+            }
+            val wasSelected = reactions[emoji]?.contains(me) == true
+            for ((_, list) in reactions) {
+                list.remove(me)
+            }
+            if (!wasSelected) {
+                reactions.getOrPut(emoji) { mutableListOf() }.add(me)
+            }
+            val cleaned = reactions.filter { it.value.isNotEmpty() }
+            ref.update("reactions", cleaned)
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, e.message ?: "خطأ", Toast.LENGTH_SHORT).show()
+                }
+        }
+    }
+
 }

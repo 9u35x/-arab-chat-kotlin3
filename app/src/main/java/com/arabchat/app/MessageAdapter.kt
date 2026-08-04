@@ -75,7 +75,7 @@ class MessageAdapter(
                         }
                     }
                 }
-                holder.bindReactions(message)
+                showReactions(holder.itemView, message)
                 holder.itemView.setOnLongClickListener {
                     onReact(message)
                     true
@@ -91,7 +91,7 @@ class MessageAdapter(
                     holder.text, holder.time, holder.image, holder.tempOverlay,
                     holder.voiceRow, holder.playVoice, holder.voiceDuration
                 )
-                holder.bindReactions(message)
+                showReactions(holder.itemView, message)
                 holder.itemView.setOnLongClickListener {
                     onReact(message)
                     true
@@ -180,6 +180,28 @@ class MessageAdapter(
         messages.clear()
         messages.addAll(newMessages)
         notifyDataSetChanged()
+    }
+
+    
+    private fun showReactions(itemView: View, message: Message) {
+        val tv = itemView.findViewById<TextView?>(R.id.tvReactions) ?: return
+        val map = message.reactions
+        if (map.isEmpty()) {
+            tv.visibility = View.GONE
+            tv.text = ""
+            return
+        }
+        val text = map.entries
+            .filter { it.value.isNotEmpty() }
+            .joinToString("  ") { (emoji, uids) ->
+                if (uids.size > 1) "$emoji ${uids.size}" else emoji
+            }
+        if (text.isBlank()) {
+            tv.visibility = View.GONE
+        } else {
+            tv.visibility = View.VISIBLE
+            tv.text = text
+        }
     }
 
     class SentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
