@@ -15,6 +15,8 @@ data class Message(
     val durationMs: Long = 0,
     /** "sent" | "delivered" | "read" */
     val status: String = "sent",
+    /** emoji -> list of user ids */
+    val reactions: Map<String, List<String>> = emptyMap(),
     @ServerTimestamp
     val timestamp: Date? = null
 )

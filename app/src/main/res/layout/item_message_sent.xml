@@ -96,4 +96,17 @@
                 android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvReactions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:textSize="13sp"
+            android:visibility="gone"
+            android:background="#33FFFFFF"
+            android:textColor="#FFFFFF" />
+
 </LinearLayout>

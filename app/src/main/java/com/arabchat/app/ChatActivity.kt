@@ -125,6 +125,7 @@ class ChatActivity : AppCompatActivity() {
             onViewTemporaryImage = { message, _ -> markTemporaryViewed(message) },
             onMessageLongClick = { message -> confirmDeleteMessage(message) },
             onImageClick = { url -> showFullImage(url) },
+            onReact = { message -> showReactionSheet(message) },
             senderNames = senderNameCache
         )
         rvMessages.adapter = adapter

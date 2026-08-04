@@ -18,6 +18,7 @@ class MessageAdapter(
     private val onViewTemporaryImage: (Message, Int) -> Unit,
     private val onMessageLongClick: (Message) -> Unit = {},
     private val onImageClick: (String) -> Unit = {},
+    private val onReact: (Message) -> Unit = {},
     private val senderNames: Map<String, String> = emptyMap()
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -74,9 +75,13 @@ class MessageAdapter(
                         }
                     }
                 }
+                holder.bindReactions(message)
                 holder.itemView.setOnLongClickListener {
-                    onMessageLongClick(message)
+                    onReact(message)
                     true
+                }
+                holder.itemView.setOnClickListener {
+                    // ضغط عادي لا شيء؛ الحذف من القائمة داخل onReact
                 }
             }
             is ReceivedViewHolder -> {
@@ -86,8 +91,9 @@ class MessageAdapter(
                     holder.text, holder.time, holder.image, holder.tempOverlay,
                     holder.voiceRow, holder.playVoice, holder.voiceDuration
                 )
+                holder.bindReactions(message)
                 holder.itemView.setOnLongClickListener {
-                    onMessageLongClick(message)
+                    onReact(message)
                     true
                 }
             }
