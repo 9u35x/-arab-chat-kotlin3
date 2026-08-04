@@ -97,15 +97,24 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvHomeStories"
+
+    <HorizontalScrollView
+        android:id="@+id/hsvStories"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:clipToPadding="false"
-        android:background="#0D0A12" />
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:background="#100C18">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvHomeStories"
+            android:layout_width="wrap_content"
+            android:layout_height="96dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:clipToPadding="false"
+            android:nestedScrollingEnabled="false" />
+    </HorizontalScrollView>
 
 <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvChats"
