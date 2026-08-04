@@ -75,7 +75,7 @@ class StoriesActivity : AppCompatActivity() {
     private fun publishStory(text: String) {
         val user = auth.currentUser ?: return
         val uri = pendingUri ?: return
-        val path = "stories/\( {user.uid}_ \){System.currentTimeMillis()}.jpg"
+        val path = "stories/" + user.uid + "_" + System.currentTimeMillis() + ".jpg"
         Toast.makeText(this, "جاري رفع القصة...", Toast.LENGTH_SHORT).show()
         SupabaseStorage.uploadFromUri(this, uri, path, "image/jpeg") { url, err ->
             if (url == null) {
