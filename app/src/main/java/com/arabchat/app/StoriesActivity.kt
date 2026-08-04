@@ -45,7 +45,7 @@ class StoriesActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.tvBack).setOnClickListener { finish() }
         findViewById<TextView>(R.id.tvAddStory).setOnClickListener {
-            pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
         }
 
         findViewById<RecyclerView>(R.id.rvStories).layoutManager =
@@ -75,9 +75,15 @@ class StoriesActivity : AppCompatActivity() {
     private fun publishStory(text: String) {
         val user = auth.currentUser ?: return
         val uri = pendingUri ?: return
-        val path = "stories/" + user.uid + "_" + System.currentTimeMillis() + ".jpg"
+        val name = uri.lastPathSegment ?: "story"
+        val isVideo = (uri.toString().contains("video") ||
+            name.endsWith(".mp4") || name.endsWith(".mov") || name.endsWith(".webm") ||
+            (contentResolver.getType(uri) ?: "").startsWith("video"))
+        val ext = if (isVideo) ".mp4" else ".jpg"
+        val mime = if (isVideo) "video/mp4" else "image/jpeg"
+        val path = "stories/" + user.uid + "_" + System.currentTimeMillis() + ext
         Toast.makeText(this, "جاري رفع القصة...", Toast.LENGTH_SHORT).show()
-        SupabaseStorage.uploadFromUri(this, uri, path, "image/jpeg") { url, err ->
+        SupabaseStorage.uploadFromUri(this, uri, path, mime) { url, err ->
             if (url == null) {
                 Toast.makeText(this, err ?: "فشل الرفع", Toast.LENGTH_LONG).show()
                 return@uploadFromUri
@@ -91,6 +97,7 @@ class StoriesActivity : AppCompatActivity() {
                         "userName" to (profile?.bestName() ?: "مستخدم"),
                         "avatarUrl" to (profile?.avatarUrl ?: ""),
                         "mediaUrl" to url,
+                        "mediaType" to if (isVideo) "video" else "image",
                         "text" to text,
                         "createdAtMs" to now,
                         "expiresAtMs" to now + 24L * 60L * 60L * 1000L,

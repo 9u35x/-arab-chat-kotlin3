@@ -60,6 +60,13 @@ class ChatActivity : AppCompatActivity() {
         db.collection("chats").document(chatId)
     }
 
+    
+    private val pickVideoLauncher = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) uploadAndSendVideo(uri)
+    }
+
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -218,11 +225,23 @@ class ChatActivity : AppCompatActivity() {
             )
         }
         tvPickImage.setOnLongClickListener {
-            nextImageIsTemporary = true
-            Toast.makeText(this, "الصورة الجاية راح تكون مؤقتة (تختفي بعد المشاهدة)", Toast.LENGTH_SHORT).show()
-            pickImageLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
+            val opts = arrayOf("صورة مؤقتة", "إرسال فيديو")
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("وسائط")
+                .setItems(opts) { _, which ->
+                    if (which == 0) {
+                        nextImageIsTemporary = true
+                        Toast.makeText(this, "الصورة الجاية مؤقتة", Toast.LENGTH_SHORT).show()
+                        pickImageLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    } else {
+                        pickVideoLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)
+                        )
+                    }
+                }
+                .show()
             true
         }
 
@@ -525,7 +544,19 @@ class ChatActivity : AppCompatActivity() {
 
     private fun showFullImage(url: String) {
         if (url.isEmpty()) {
-            Toast.makeText(this, "رابط الصورة فارغ", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "رابط فارغ", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val lower = url.lowercase()
+        if (lower.contains(".mp4") || lower.contains(".mov") || lower.contains("video")) {
+            try {
+                val i = android.content.Intent(android.content.Intent.ACTION_VIEW)
+                i.setDataAndType(android.net.Uri.parse(url), "video/*")
+                i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(i)
+            } catch (e: Exception) {
+                Toast.makeText(this, "تعذر تشغيل الفيديو", Toast.LENGTH_SHORT).show()
+            }
             return
         }
         val intent = android.content.Intent(this, FullImageActivity::class.java)
@@ -841,6 +872,36 @@ class ChatActivity : AppCompatActivity() {
                 .addOnFailureListener { e ->
                     Toast.makeText(this, e.message ?: "خطأ", Toast.LENGTH_SHORT).show()
                 }
+        }
+    }
+
+
+
+    private fun uploadAndSendVideo(uri: android.net.Uri) {
+        val user = auth.currentUser ?: return
+        val senderName = currentSenderName()
+        val path = chatId + "/" + System.currentTimeMillis() + ".mp4"
+        Toast.makeText(this, "جاري رفع الفيديو...", Toast.LENGTH_SHORT).show()
+        SupabaseStorage.uploadFromUri(this, uri, path, "video/mp4") { publicUrl, error ->
+            if (publicUrl == null) {
+                Toast.makeText(this, "فشل رفع الفيديو: " + error, Toast.LENGTH_LONG).show()
+                return@uploadFromUri
+            }
+            val message = hashMapOf(
+                "senderId" to user.uid,
+                "senderName" to senderName,
+                "type" to "video",
+                "status" to "sent",
+                "mediaUrl" to publicUrl,
+                "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+            )
+            messagesRef.add(message)
+            chatRef.update(
+                mapOf(
+                    "lastMessage" to "🎥 فيديو",
+                    "lastMessageTime" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                )
+            )
         }
     }
 
