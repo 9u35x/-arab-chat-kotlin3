@@ -79,6 +79,10 @@ class HomeActivity : AppCompatActivity() {
         tvSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+        tvChannels.setOnLongClickListener {
+            startActivity(Intent(this, StoriesActivity::class.java))
+            true
+        }
         tvChannels.setOnClickListener {
             startActivity(Intent(this, ChannelsActivity::class.java))
         }

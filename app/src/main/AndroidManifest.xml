@@ -74,5 +74,6 @@
             </intent-filter>
         </service>
 
+            <activity android:name=".StoriesActivity" android:exported="false" />
     </application>
 </manifest>
