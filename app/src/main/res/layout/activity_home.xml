@@ -97,7 +97,17 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <androidx.recyclerview.widget.RecyclerView
+        
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHomeStories"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:clipToPadding="false"
+        android:background="#0D0A12" />
+
+<androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvChats"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

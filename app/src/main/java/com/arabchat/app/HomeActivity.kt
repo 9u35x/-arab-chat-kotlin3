@@ -22,6 +22,7 @@ class HomeActivity : AppCompatActivity() {
     private var listenerRegistration: ListenerRegistration? = null
     private var lastNotified: MutableMap<String, String> = mutableMapOf()
     private var allChats: List<Chat> = emptyList()
+    private var storiesListener: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +58,12 @@ class HomeActivity : AppCompatActivity() {
         tvEmptyState = findViewById(R.id.tvEmptyState)
 
         rvChats.layoutManager = LinearLayoutManager(this)
+
+        // شريط القصص
+        val rvHomeStories = findViewById<RecyclerView?>(R.id.rvHomeStories)
+        rvHomeStories?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        loadHomeStories(rvHomeStories)
+
         adapter = ChatListAdapter(
             mutableListOf(),
             user.uid,
@@ -152,6 +159,7 @@ class HomeActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         listenerRegistration?.remove()
+        storiesListener?.remove()
     }
 
     private fun confirmDeleteChat(chat: Chat, myUid: String) {
@@ -191,4 +199,84 @@ class HomeActivity : AppCompatActivity() {
                 }
         }
 }
+    
+
+    private fun loadHomeStories(rv: RecyclerView?) {
+        if (rv == null) return
+        val me = auth.currentUser?.uid ?: return
+        val now = System.currentTimeMillis()
+        storiesListener?.remove()
+        storiesListener = db.collection("stories")
+            .whereEqualTo("status", "active")
+            .addSnapshotListener { snap, err ->
+                if (err != null || snap == null) return@addSnapshotListener
+                val active = snap.documents.mapNotNull { d ->
+                    d.toObject(Story::class.java)?.also { it.id = d.id }
+                }.filter { it.expiresAtMs > now }
+
+                // قصتي أولاً (حتى لو ما عندي قصة — عنصر "إضافة")
+                val mine = active.filter { it.userId == me }
+                val others = active.filter { it.userId != me }
+                    .groupBy { it.userId }
+                    .map { (_, list) -> list.maxByOrNull { it.createdAtMs }!! }
+
+                val rows = mutableListOf<HomeStoryRow>()
+                rows.add(
+                    HomeStoryRow(
+                        isAdd = mine.isEmpty(),
+                        userId = me,
+                        name = "قصتي",
+                        story = mine.maxByOrNull { it.createdAtMs }
+                    )
+                )
+                for (s in others) {
+                    rows.add(HomeStoryRow(false, s.userId, s.userName, s))
+                }
+                rv.adapter = HomeStoryBarAdapter(rows) { row ->
+                    if (row.isAdd || (row.userId == me && row.story == null)) {
+                        startActivity(android.content.Intent(this, StoriesActivity::class.java))
+                    } else if (row.story != null) {
+                        val url = row.story!!.mediaUrl
+                        if (url.isNotEmpty()) {
+                            startActivity(android.content.Intent(this, FullImageActivity::class.java).apply {
+                                putExtra(FullImageActivity.EXTRA_URL, url)
+                            })
+                        } else {
+                            startActivity(android.content.Intent(this, StoriesActivity::class.java))
+                        }
+                    }
+                }
+            }
     }
+
+}
+
+
+data class HomeStoryRow(
+    val isAdd: Boolean,
+    val userId: String,
+    val name: String,
+    val story: Story?
+)
+
+class HomeStoryBarAdapter(
+    private val rows: List<HomeStoryRow>,
+    private val onClick: (HomeStoryRow) -> Unit
+) : RecyclerView.Adapter<HomeStoryBarAdapter.VH>() {
+    class VH(v: android.view.View) : RecyclerView.ViewHolder(v) {
+        val avatar: android.widget.TextView = v.findViewById(R.id.tvStoryAvatar)
+        val name: android.widget.TextView = v.findViewById(R.id.tvStoryName)
+    }
+    override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): VH {
+        val v = android.view.LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_story_circle, parent, false)
+        return VH(v)
+    }
+    override fun getItemCount() = rows.size
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        val row = rows[position]
+        holder.name.text = if (row.isAdd) "إضافة" else row.name
+        holder.avatar.text = if (row.isAdd) "+" else row.name.take(1).ifEmpty { "?" }
+        holder.itemView.setOnClickListener { onClick(row) }
+    }
+}
