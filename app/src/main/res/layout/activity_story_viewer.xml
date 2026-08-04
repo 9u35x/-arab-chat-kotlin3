@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <ImageView
+        android:id="@+id/ivStory"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <VideoView
+        android:id="@+id/vvStory"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <!-- شريط علوي -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="#66000000">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvStoryUser"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvStoryViews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#E0E0E0"
+                android:textSize="13sp"
+                android:paddingEnd="12dp" />
+
+            <TextView
+                android:id="@+id/tvStoryMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⋮"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/tvCloseStory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="إغلاق"
+                android:textColor="#FFFFFF"
+                android:padding="8dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvStoryCaption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#F0F0F0"
+            android:textSize="14sp"
+            android:paddingTop="4dp" />
+    </LinearLayout>
+
+    <!-- شريط سفلي: قلب + رد -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:background="#66000000">
+
+        <TextView
+            android:id="@+id/tvHeart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🤍"
+            android:textSize="28sp"
+            android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/tvHeartCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:paddingEnd="12dp" />
+
+        <EditText
+            android:id="@+id/etStoryReply"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:hint="رد على القصة..."
+            android:textColorHint="#AAAAAA"
+            android:textColor="#FFFFFF"
+            android:paddingHorizontal="12dp"
+            android:background="#33FFFFFF"
+            android:inputType="text"
+            android:imeOptions="actionSend"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/tvSendReply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="إرسال"
+            android:textColor="#B983FF"
+            android:textSize="15sp"
+            android:padding="10dp" />
+    </LinearLayout>
+</FrameLayout>
