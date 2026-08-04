@@ -238,12 +238,25 @@ class HomeActivity : AppCompatActivity() {
                         startActivity(android.content.Intent(this, StoriesActivity::class.java))
                     } else if (row.story != null) {
                         val url = row.story!!.mediaUrl
-                        if (url.isNotEmpty()) {
-                            startActivity(android.content.Intent(this, FullImageActivity::class.java).apply {
-                                putExtra(FullImageActivity.EXTRA_URL, url)
-                            })
-                        } else {
+                        if (url.isEmpty()) {
                             startActivity(android.content.Intent(this, StoriesActivity::class.java))
+                        } else {
+                            val lower = url.lowercase()
+                            val isVideo = lower.contains(".mp4") || lower.contains(".mov") ||
+                                lower.contains(".webm") || lower.contains("video")
+                            if (isVideo) {
+                                try {
+                                    val i = android.content.Intent(android.content.Intent.ACTION_VIEW)
+                                    i.setDataAndType(android.net.Uri.parse(url), "video/*")
+                                    startActivity(i)
+                                } catch (_: Exception) {
+                                    android.widget.Toast.makeText(this, "تعذر تشغيل الفيديو", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                startActivity(android.content.Intent(this, FullImageActivity::class.java).apply {
+                                    putExtra(FullImageActivity.EXTRA_URL, url)
+                                })
+                            }
                         }
                     }
                 }

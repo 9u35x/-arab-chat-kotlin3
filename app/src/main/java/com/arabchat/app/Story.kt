@@ -9,6 +9,7 @@ data class Story(
     val userName: String = "",
     val avatarUrl: String = "",
     val mediaUrl: String = "",
+    val mediaType: String = "image",
     val text: String = "",
     val createdAtMs: Long = 0L,
     val expiresAtMs: Long = 0L,
