@@ -187,6 +187,14 @@ class ChatActivity : AppCompatActivity() {
                 val channelName = doc.getString("name") ?: chatTitle
                 findViewById<TextView>(R.id.tvChatTitle).text = channelName
                 chatTitle = channelName
+                // إظهار صورة القناة / المجموعة
+                showPeerAvatar(channelAvatarUrl, channelName)
+                val subtitle = findViewById<TextView?>(R.id.tvChatSubtitle)
+                val desc = channelDescription?.trim().orEmpty()
+                if (desc.isNotEmpty()) {
+                    subtitle?.visibility = android.view.View.VISIBLE
+                    subtitle?.text = desc.take(40)
+                }
             }
             val participants = (doc.get("participants") as? List<*>)?.map { it.toString() } ?: emptyList()
             val admins = (doc.get("admins") as? List<*>)?.map { it.toString() } ?: emptyList()
