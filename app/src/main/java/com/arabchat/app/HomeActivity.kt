@@ -245,8 +245,8 @@ class HomeActivity : AppCompatActivity() {
                             val isVideo = lower.contains(".mp4") || lower.contains(".mov") ||
                                 lower.contains(".webm") || lower.contains("video")
                             if (isVideo) {
-                                startActivity(android.content.Intent(this, VideoPlayerActivity::class.java).apply {
-                putExtra(VideoPlayerActivity.EXTRA_URL, url)
+                                startActivity(android.content.Intent(this, StoryViewerActivity::class.java).apply {
+                putExtra(StoryViewerActivity.EXTRA_URL, url)
             })
                             } else {
                                 startActivity(android.content.Intent(this, FullImageActivity::class.java).apply {

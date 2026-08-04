@@ -3,7 +3,6 @@ package com.arabchat.app
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.MediaController
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -26,12 +25,8 @@ class VideoPlayerActivity : AppCompatActivity() {
         val videoView = findViewById<VideoView>(R.id.videoView)
         val progress = findViewById<ProgressBar>(R.id.progressVideo)
         findViewById<TextView>(R.id.tvCloseVideo).setOnClickListener { finish() }
-
-        val controller = MediaController(this)
-        controller.setAnchorView(videoView)
-        videoView.setMediaController(controller)
-
-        progress.visibility = View.VISIBLE
+        videoView.setMediaController(null)
+progress.visibility = View.VISIBLE
         videoView.setOnPreparedListener { mp ->
             progress.visibility = View.GONE
             mp.start()
