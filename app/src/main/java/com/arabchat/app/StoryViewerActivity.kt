@@ -38,6 +38,7 @@ class StoryViewerActivity : AppCompatActivity() {
 
         storyId = intent.getStringExtra(EXTRA_STORY_ID).orEmpty()
         ownerId = intent.getStringExtra(EXTRA_OWNER_ID).orEmpty()
+        resolveOwnerIfNeeded()
         mediaUrl = intent.getStringExtra(EXTRA_URL).orEmpty()
         val userName = intent.getStringExtra(EXTRA_USER_NAME).orEmpty()
         val caption = intent.getStringExtra(EXTRA_CAPTION).orEmpty()
@@ -93,6 +94,22 @@ class StoryViewerActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvHeart).setOnClickListener { toggleLike(me) }
         findViewById<TextView>(R.id.tvSendReply).setOnClickListener { sendReply(me) }
         findViewById<TextView>(R.id.tvStoryMenu).setOnClickListener { showMenu(me) }
+    }
+
+    private fun resolveOwnerIfNeeded() {
+        if (ownerId.isNotEmpty() || storyId.isEmpty()) return
+        db.collection("stories").document(storyId).get()
+            .addOnSuccessListener { doc ->
+                if (!doc.exists()) return@addOnSuccessListener
+                val uid = doc.getString("userId").orEmpty()
+                if (uid.isNotEmpty()) {
+                    ownerId = uid
+                    val name = doc.getString("userName").orEmpty()
+                    if (name.isNotEmpty()) {
+                        findViewById<TextView>(R.id.tvStoryUser).text = name
+                    }
+                }
+            }
     }
 
     private fun recordView(me: String) {
@@ -170,7 +187,9 @@ class StoryViewerActivity : AppCompatActivity() {
             return
         }
         if (ownerId.isEmpty()) {
-            Toast.makeText(this, "لا يمكن الرد", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "جاري تحميل بيانات صاحب القصة...", Toast.LENGTH_SHORT).show()
+            resolveOwnerIfNeeded()
+            return
             return
         }
         // رد كرسالة خاصة لصاحب القصة
