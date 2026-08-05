@@ -250,18 +250,18 @@ class StoryViewerActivity : AppCompatActivity() {
                     Toast.makeText(this, "لا مشاهدات بعد", Toast.LENGTH_SHORT).show()
                     return@addOnSuccessListener
                 }
-                // جلب الأسماء
-                db.collection("users").whereIn("uid", viewers.take(10)).get()
+                val ids = viewers.take(10)
+                db.collection("users").whereIn(com.google.firebase.firestore.FieldPath.documentId(), ids).get()
                     .addOnSuccessListener { us ->
-                        val names = us.documents.map {
-                            it.getString("displayName")
-                                ?: it.getString("username")
-                                ?: it.id.take(6)
+                        val names = us.documents.map { d ->
+                            d.getString("displayName")
+                                ?: d.getString("username")
+                                ?: d.id.take(6)
                         }
                         val msg = if (names.isEmpty()) {
-                            "عدد المشاهدات: ${viewers.size}"
+                            "عدد المشاهدات: " + viewers.size
                         } else {
-                            "المشاهدات (${viewers.size}):
+                            "المشاهدات (" + viewers.size + "):
 " + names.joinToString("
 ")
                         }
@@ -274,7 +274,7 @@ class StoryViewerActivity : AppCompatActivity() {
                     .addOnFailureListener {
                         AlertDialog.Builder(this)
                             .setTitle("المشاهدون")
-                            .setMessage("عدد المشاهدات: ${viewers.size}")
+                            .setMessage("عدد المشاهدات: " + viewers.size)
                             .setPositiveButton("حسناً", null)
                             .show()
                     }
