@@ -47,6 +47,18 @@ class StoryViewerActivity : AppCompatActivity() {
             }
 
         findViewById<TextView>(R.id.tvStoryUser).text = userName.ifBlank { "قصة" }
+        findViewById<TextView>(R.id.tvStoryAvatarLetter).text =
+            userName.take(1).ifEmpty { "؟" }
+        val isOwner = me == ownerId
+        findViewById<View>(R.id.layoutOwnerBar).visibility =
+            if (isOwner) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.layoutViewerBar).visibility =
+            if (isOwner) View.GONE else View.VISIBLE
+        if (isOwner) {
+            findViewById<TextView>(R.id.tvOwnerActivity).setOnClickListener { showViewers() }
+            findViewById<TextView>(R.id.tvOwnerDelete).setOnClickListener { deleteStory() }
+            findViewById<TextView>(R.id.tvViewsBig).setOnClickListener { showViewers() }
+        }
         findViewById<TextView>(R.id.tvStoryCaption).text = caption
         findViewById<TextView>(R.id.tvCloseStory).setOnClickListener { finish() }
 
@@ -109,13 +121,22 @@ class StoryViewerActivity : AppCompatActivity() {
                 val viewers = (doc.get("viewers") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
                 val likes = (doc.get("likes") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
                 val vCount = viewers.size
-                val vText = if (vCount == 1) "👁 مشاهدة واحدة" else "👁 $vCount مشاهدة"
+                val vText = if (vCount == 0) "👁 لا مشاهدات بعد"
+                    else if (vCount == 1) "👁 مشاهدة واحدة"
+                    else "👁 $vCount مشاهدة"
                 findViewById<TextView>(R.id.tvStoryViews).text = vText
                 findViewById<TextView?>(R.id.tvViewsBig)?.text = vText
                 findViewById<TextView>(R.id.tvHeartCount).text =
                     if (likes.isEmpty()) "" else likes.size.toString()
                 liked = me in likes
                 findViewById<TextView>(R.id.tvHeart).text = if (liked) "❤️" else "🤍"
+                val hearts = findViewById<TextView?>(R.id.tvFloatingHearts)
+                if (likes.isNotEmpty()) {
+                    hearts?.visibility = View.VISIBLE
+                    hearts?.text = "🤍".repeat(minOf(likes.size, 6))
+                } else {
+                    hearts?.visibility = View.GONE
+                }
                 // صاحب القصة: القائمة تعرض المشاهدين
                 if (me == ownerId) {
                     findViewById<TextView>(R.id.tvStoryViews).setOnClickListener { showViewers() }
