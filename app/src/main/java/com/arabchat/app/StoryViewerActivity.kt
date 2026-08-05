@@ -258,12 +258,11 @@ class StoryViewerActivity : AppCompatActivity() {
                                 ?: d.getString("username")
                                 ?: d.id.take(6)
                         }
+                        val nl = "" + 10.toChar()
                         val msg = if (names.isEmpty()) {
                             "عدد المشاهدات: " + viewers.size
                         } else {
-                            "المشاهدات (" + viewers.size + "):
-" + names.joinToString("
-")
+                            "المشاهدات (" + viewers.size + "):" + nl + names.joinToString(nl)
                         }
                         AlertDialog.Builder(this)
                             .setTitle("المشاهدون")
