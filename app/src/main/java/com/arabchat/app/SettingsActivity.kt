@@ -40,7 +40,10 @@ class SettingsActivity : AppCompatActivity() {
                 .setTitle(getString(R.string.language))
                 .setItems(langs.map { it.first }.toTypedArray()) { _, which ->
                     LocaleHelper.apply(this, langs[which].second)
-                    recreate()
+                    val i = android.content.Intent(this, HomeActivity::class.java)
+                    i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(i)
+                    finishAffinity()
                 }
                 .show()
         }

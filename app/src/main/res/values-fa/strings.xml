@@ -17,4 +17,10 @@
     <string name="send">ارسال</string>
     <string name="settings">تنظیمات</string>
     <string name="stories">استوری‌ها</string>
+    <string name="my_story">استوری من</string>
+    <string name="notifications">اعلان‌ها</string>
+    <string name="change_password">تغییر رمز</string>
+    <string name="about">درباره برنامه</string>
+    <string name="privacy">حریم خصوصی</string>
+    <string name="blocked">مسدودها</string>
 </resources>

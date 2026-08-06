@@ -17,4 +17,10 @@
     <string name="send">بھیجیں</string>
     <string name="settings">ترتیبات</string>
     <string name="stories">اسٹوریز</string>
+    <string name="my_story">میری اسٹوری</string>
+    <string name="notifications">اطلاعات</string>
+    <string name="change_password">پاس ورڈ تبدیل</string>
+    <string name="about">ایپ کے بارے</string>
+    <string name="privacy">رازداری</string>
+    <string name="blocked">مسدود</string>
 </resources>

@@ -153,4 +153,9 @@
     <string name="version_format">الإصدار %1$s</string>
     <string name="welcome_subtitle">تواصل بأناقة</string>
     <string name="welcome_title">دردشة العرب</string>
+    <string name="my_story">قصتي</string>
+    <string name="notifications">الإشعارات</string>
+    <string name="about">عن التطبيق</string>
+    <string name="privacy">سياسة الخصوصية</string>
+    <string name="blocked">المحظورون</string>
 </resources>

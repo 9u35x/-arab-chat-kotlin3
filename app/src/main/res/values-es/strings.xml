@@ -17,4 +17,10 @@
     <string name="send">Enviar</string>
     <string name="settings">Ajustes</string>
     <string name="stories">Historias</string>
+    <string name="my_story">Mi historia</string>
+    <string name="notifications">Notificaciones</string>
+    <string name="change_password">Cambiar contraseña</string>
+    <string name="about">Acerca de</string>
+    <string name="privacy">Privacidad</string>
+    <string name="blocked">Bloqueados</string>
 </resources>

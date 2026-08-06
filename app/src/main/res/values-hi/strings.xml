@@ -17,4 +17,10 @@
     <string name="send">भेजें</string>
     <string name="settings">सेटिंग्स</string>
     <string name="stories">स्टोरीज़</string>
+    <string name="my_story">मेरी स्टोरी</string>
+    <string name="notifications">सूचनाएं</string>
+    <string name="change_password">पासवर्ड बदलें</string>
+    <string name="about">ऐप के बारे में</string>
+    <string name="privacy">गोपनीयता</string>
+    <string name="blocked">ब्लॉक किए</string>
 </resources>

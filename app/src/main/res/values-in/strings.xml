@@ -17,4 +17,10 @@
     <string name="send">Kirim</string>
     <string name="settings">Pengaturan</string>
     <string name="stories">Cerita</string>
+    <string name="my_story">Cerita saya</string>
+    <string name="notifications">Notifikasi</string>
+    <string name="change_password">Ubah kata sandi</string>
+    <string name="about">Tentang aplikasi</string>
+    <string name="privacy">Privasi</string>
+    <string name="blocked">Diblokir</string>
 </resources>

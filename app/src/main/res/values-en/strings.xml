@@ -17,4 +17,10 @@
     <string name="send">Send</string>
     <string name="settings">Settings</string>
     <string name="stories">Stories</string>
+    <string name="my_story">My story</string>
+    <string name="notifications">Notifications</string>
+    <string name="change_password">Change password</string>
+    <string name="about">About</string>
+    <string name="privacy">Privacy policy</string>
+    <string name="blocked">Blocked</string>
 </resources>
