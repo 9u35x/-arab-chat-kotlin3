@@ -96,20 +96,47 @@ class StoryViewerActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvStoryMenu).setOnClickListener { showMenu(me) }
     }
 
-    private fun resolveOwnerIfNeeded() {
-        if (ownerId.isNotEmpty() || storyId.isEmpty()) return
-        db.collection("stories").document(storyId).get()
-            .addOnSuccessListener { doc ->
-                if (!doc.exists()) return@addOnSuccessListener
-                val uid = doc.getString("userId").orEmpty()
-                if (uid.isNotEmpty()) {
-                    ownerId = uid
-                    val name = doc.getString("userName").orEmpty()
-                    if (name.isNotEmpty()) {
-                        findViewById<TextView>(R.id.tvStoryUser).text = name
-                    }
+private fun resolveOwnerIfNeeded() {
+        // 1) عندنا storyId → اقرأ المستند
+        if (storyId.isNotEmpty()) {
+            db.collection("stories").document(storyId).get()
+                .addOnSuccessListener { doc ->
+                    if (!doc.exists()) return@addOnSuccessListener
+                    applyStoryDoc(doc)
                 }
-            }
+            return
+        }
+        // 2) بدون id: ابحث بالرابط
+        if (mediaUrl.isNotEmpty()) {
+            db.collection("stories").whereEqualTo("mediaUrl", mediaUrl).limit(1).get()
+                .addOnSuccessListener { snap ->
+                    if (snap.isEmpty) return@addOnSuccessListener
+                    val doc = snap.documents[0]
+                    storyId = doc.id
+                    applyStoryDoc(doc)
+                }
+        }
+    }
+
+    private fun applyStoryDoc(doc: com.google.firebase.firestore.DocumentSnapshot) {
+        val uid = doc.getString("userId").orEmpty()
+        if (uid.isNotEmpty()) ownerId = uid
+        if (storyId.isEmpty()) storyId = doc.id
+        val name = doc.getString("userName").orEmpty()
+        if (name.isNotEmpty()) {
+            findViewById<TextView>(R.id.tvStoryUser).text = name
+        }
+        val caption = doc.getString("text").orEmpty()
+        if (caption.isNotEmpty()) {
+            findViewById<TextView>(R.id.tvStoryCaption).text = caption
+        }
+        // حدّث أشرطة المالك/المشاهد بعد معرفة المالك
+        val me = auth.currentUser?.uid ?: return
+        val isOwner = me == ownerId
+        findViewById<View?>(R.id.layoutOwnerBar)?.visibility =
+            if (isOwner) View.VISIBLE else View.GONE
+        findViewById<View?>(R.id.layoutViewerBar)?.visibility =
+            if (isOwner) View.GONE else View.VISIBLE
     }
 
     private fun recordView(me: String) {
