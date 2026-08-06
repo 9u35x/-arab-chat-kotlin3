@@ -230,7 +230,7 @@ class HomeActivity : AppCompatActivity() {
                     HomeStoryRow(
                         isAdd = mine.isEmpty(),
                         userId = me,
-                        name = context.getString(R.string.my_story),
+                        name = getString(R.string.my_story),
                         story = mine.maxByOrNull { it.createdAtMs }
                     )
                 )
@@ -289,7 +289,7 @@ class HomeStoryBarAdapter(
     override fun getItemCount() = rows.size
     override fun onBindViewHolder(holder: VH, position: Int) {
         val row = rows[position]
-        holder.name.text = if (row.isAdd) holder.itemView.context.getString(R.string.add_story) else row.name
+        holder.name.text = if (row.isAdd) holder.itemView.getString(R.string.add_story) else row.name
         holder.avatar.text = if (row.isAdd) "+" else row.name.take(1).ifEmpty { "?" }
         holder.itemView.setOnClickListener { onClick(row) }
     }
