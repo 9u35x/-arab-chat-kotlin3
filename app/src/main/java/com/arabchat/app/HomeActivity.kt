@@ -14,6 +14,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 
 class HomeActivity : AppCompatActivity() {
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(LocaleHelper.wrap(newBase))
+    }
+
 
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
@@ -289,9 +293,4 @@ class HomeStoryBarAdapter(
         holder.avatar.text = if (row.isAdd) "+" else row.name.take(1).ifEmpty { "?" }
         holder.itemView.setOnClickListener { onClick(row) }
     }
-
-    override fun attachBaseContext(newBase: android.content.Context) {
-        super.attachBaseContext(LocaleHelper.wrap(newBase))
-    }
-
 }
