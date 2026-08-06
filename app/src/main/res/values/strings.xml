@@ -22,7 +22,7 @@
     <string name="channel_readonly_hint">القناة للقراءة فقط — المشرف ينشر</string>
     <string name="channel_settings">إعدادات القناة</string>
     <string name="channel_updated">تم تحديث القناة</string>
-    <string name="channels">قنوات</string>
+    <string name="channels">القنوات</string>
     <string name="channels_section">القنوات</string>
     <string name="channels_short">قنوات</string>
     <string name="channels_title">القنوات</string>
@@ -158,4 +158,15 @@
     <string name="about">عن التطبيق</string>
     <string name="privacy">سياسة الخصوصية</string>
     <string name="blocked">المحظورون</string>
+    <string name="notifications_sub">تفعيل تنبيهات الرسائل الجديدة</string>
+    <string name="last_seen">آخر ظهور</string>
+    <string name="last_seen_sub">إظهار آخر ظهور للآخرين</string>
+    <string name="read_receipts">إشعارات القراءة</string>
+    <string name="read_receipts_sub">إظهار أن الرسالة قُرئت</string>
+    <string name="enter_to_send">Enter للإرسال</string>
+    <string name="enter_to_send_sub">إرسال الرسالة بمفتاح الإدخال</string>
+    <string name="my_account">حسابي</string>
+    <string name="privacy_short">الخصوصية</string>
+    <string name="version">الإصدار 1.0</string>
+    <string name="add_story">إضافة</string>
 </resources>

@@ -13,7 +13,7 @@
     <string name="profile">Profil</string>
     <string name="register">Kayıt ol</string>
     <string name="save">Kaydet</string>
-    <string name="search_hint">Kullanıcı veya kanal ara...</string>
+    <string name="search_hint">Ara...</string>
     <string name="send">Gönder</string>
     <string name="settings">Ayarlar</string>
     <string name="stories">Hikayeler</string>
@@ -23,4 +23,16 @@
     <string name="about">Hakkında</string>
     <string name="privacy">Gizlilik</string>
     <string name="blocked">Engellenenler</string>
+    <string name="notifications_sub">Yeni mesaj uyarıları</string>
+    <string name="last_seen">Son görülme</string>
+    <string name="last_seen_sub">Son görülmeyi göster</string>
+    <string name="read_receipts">Okundu bilgisi</string>
+    <string name="read_receipts_sub">Okundu göster</string>
+    <string name="enter_to_send">Enter ile gönder</string>
+    <string name="enter_to_send_sub">Enter tuşu ile gönder</string>
+    <string name="my_account">Hesabım</string>
+    <string name="privacy_short">Gizlilik</string>
+    <string name="clear_cache">Önbelleği temizle</string>
+    <string name="version">Sürüm 1.0</string>
+    <string name="add_story">Ekle</string>
 </resources>

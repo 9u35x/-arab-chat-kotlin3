@@ -13,7 +13,7 @@
     <string name="profile">پروفائل</string>
     <string name="register">اکاؤنٹ بنائیں</string>
     <string name="save">محفوظ</string>
-    <string name="search_hint">صارف یا چینل تلاش کریں...</string>
+    <string name="search_hint">تلاش...</string>
     <string name="send">بھیجیں</string>
     <string name="settings">ترتیبات</string>
     <string name="stories">اسٹوریز</string>
@@ -23,4 +23,16 @@
     <string name="about">ایپ کے بارے</string>
     <string name="privacy">رازداری</string>
     <string name="blocked">مسدود</string>
+    <string name="notifications_sub">نئی پیغام الرٹس</string>
+    <string name="last_seen">آخری بار دیکھا</string>
+    <string name="last_seen_sub">دوسروں کو دکھائیں</string>
+    <string name="read_receipts">پڑھنے کی اطلاع</string>
+    <string name="read_receipts_sub">دکھائیں جب پڑھا</string>
+    <string name="enter_to_send">Enter سے بھیجیں</string>
+    <string name="enter_to_send_sub">Enter سے بھیجیں</string>
+    <string name="my_account">میرا اکاؤنٹ</string>
+    <string name="privacy_short">رازداری</string>
+    <string name="clear_cache">کیش صاف</string>
+    <string name="version">ورژن 1.0</string>
+    <string name="add_story">شامل</string>
 </resources>

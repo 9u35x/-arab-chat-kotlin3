@@ -23,4 +23,16 @@
     <string name="about">About</string>
     <string name="privacy">Privacy policy</string>
     <string name="blocked">Blocked</string>
+    <string name="notifications_sub">Enable new message alerts</string>
+    <string name="last_seen">Last seen</string>
+    <string name="last_seen_sub">Show last seen to others</string>
+    <string name="read_receipts">Read receipts</string>
+    <string name="read_receipts_sub">Show when message was read</string>
+    <string name="enter_to_send">Enter to send</string>
+    <string name="enter_to_send_sub">Send message with Enter key</string>
+    <string name="my_account">My account</string>
+    <string name="privacy_short">Privacy</string>
+    <string name="clear_cache">Clear cache</string>
+    <string name="version">Version 1.0</string>
+    <string name="add_story">Add</string>
 </resources>

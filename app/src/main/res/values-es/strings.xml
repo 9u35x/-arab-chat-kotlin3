@@ -13,7 +13,7 @@
     <string name="profile">Perfil</string>
     <string name="register">Registrarse</string>
     <string name="save">Guardar</string>
-    <string name="search_hint">Buscar usuarios o canales...</string>
+    <string name="search_hint">Buscar...</string>
     <string name="send">Enviar</string>
     <string name="settings">Ajustes</string>
     <string name="stories">Historias</string>
@@ -23,4 +23,16 @@
     <string name="about">Acerca de</string>
     <string name="privacy">Privacidad</string>
     <string name="blocked">Bloqueados</string>
+    <string name="notifications_sub">Alertas de mensajes</string>
+    <string name="last_seen">Última vez</string>
+    <string name="last_seen_sub">Mostrar a otros</string>
+    <string name="read_receipts">Confirmación de lectura</string>
+    <string name="read_receipts_sub">Mostrar leído</string>
+    <string name="enter_to_send">Enter para enviar</string>
+    <string name="enter_to_send_sub">Enviar con Enter</string>
+    <string name="my_account">Mi cuenta</string>
+    <string name="privacy_short">Privacidad</string>
+    <string name="clear_cache">Borrar caché</string>
+    <string name="version">Versión 1.0</string>
+    <string name="add_story">Añadir</string>
 </resources>

@@ -23,4 +23,16 @@
     <string name="about">À propos</string>
     <string name="privacy">Confidentialité</string>
     <string name="blocked">Bloqués</string>
+    <string name="notifications_sub">Activer les alertes</string>
+    <string name="last_seen">Dernière connexion</string>
+    <string name="last_seen_sub">Afficher la dernière connexion</string>
+    <string name="read_receipts">Accusés de lecture</string>
+    <string name="read_receipts_sub">Afficher si lu</string>
+    <string name="enter_to_send">Entrée pour envoyer</string>
+    <string name="enter_to_send_sub">Envoyer avec Entrée</string>
+    <string name="my_account">Mon compte</string>
+    <string name="privacy_short">Confidentialité</string>
+    <string name="clear_cache">Vider le cache</string>
+    <string name="version">Version 1.0</string>
+    <string name="add_story">Ajouter</string>
 </resources>
