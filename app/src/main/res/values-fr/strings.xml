@@ -11,7 +11,7 @@
     <string name="logout">Déconnexion</string>
     <string name="password">Mot de passe</string>
     <string name="profile">Profil</string>
-    <string name="register">S'inscrire</string>
+    <string name="register" formatted="false">S\'inscrire</string>
     <string name="save">Enregistrer</string>
     <string name="search_hint">Rechercher...</string>
     <string name="send">Envoyer</string>
