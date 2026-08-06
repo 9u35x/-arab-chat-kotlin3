@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">YTalk</string>
+    <string name="cancel">İptal</string>
+    <string name="channels">Kanallar</string>
+    <string name="chats">Sohbetler</string>
+    <string name="email">E-posta</string>
+    <string name="forgot_password">Şifremi unuttum?</string>
+    <string name="language">Dil</string>
+    <string name="login">Giriş yap</string>
+    <string name="logout">Çıkış</string>
+    <string name="password">Şifre</string>
+    <string name="profile">Profil</string>
+    <string name="register">Kayıt ol</string>
+    <string name="save">Kaydet</string>
+    <string name="search_hint">Kullanıcı veya kanal ara...</string>
+    <string name="send">Gönder</string>
+    <string name="settings">Ayarlar</string>
+    <string name="stories">Hikayeler</string>
+</resources>

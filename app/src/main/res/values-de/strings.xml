@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">YTalk</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="channels">Kanäle</string>
+    <string name="chats">Chats</string>
+    <string name="email">E-Mail</string>
+    <string name="forgot_password">Passwort vergessen?</string>
+    <string name="language">Sprache</string>
+    <string name="login">Anmelden</string>
+    <string name="logout">Abmelden</string>
+    <string name="password">Passwort</string>
+    <string name="profile">Profil</string>
+    <string name="register">Registrieren</string>
+    <string name="save">Speichern</string>
+    <string name="search_hint">Nutzer oder Kanäle suchen...</string>
+    <string name="send">Senden</string>
+    <string name="settings">Einstellungen</string>
+    <string name="stories">Stories</string>
+</resources>

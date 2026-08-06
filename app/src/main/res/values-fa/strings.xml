@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">YTalk</string>
+    <string name="cancel">لغو</string>
+    <string name="channels">کانال‌ها</string>
+    <string name="chats">گفتگوها</string>
+    <string name="email">ایمیل</string>
+    <string name="forgot_password">رمز را فراموش کردید؟</string>
+    <string name="language">زبان</string>
+    <string name="login">ورود</string>
+    <string name="logout">خروج</string>
+    <string name="password">رمز عبور</string>
+    <string name="profile">پروفایل</string>
+    <string name="register">ثبت‌نام</string>
+    <string name="save">ذخیره</string>
+    <string name="search_hint">جستجوی کاربر یا کانال...</string>
+    <string name="send">ارسال</string>
+    <string name="settings">تنظیمات</string>
+    <string name="stories">استوری‌ها</string>
+</resources>

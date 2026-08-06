@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">YTalk</string>
+    <string name="cancel">Batal</string>
+    <string name="channels">Saluran</string>
+    <string name="chats">Obrolan</string>
+    <string name="email">Email</string>
+    <string name="forgot_password">Lupa kata sandi?</string>
+    <string name="language">Bahasa</string>
+    <string name="login">Masuk</string>
+    <string name="logout">Keluar</string>
+    <string name="password">Kata sandi</string>
+    <string name="profile">Profil</string>
+    <string name="register">Daftar</string>
+    <string name="save">Simpan</string>
+    <string name="search_hint">Cari pengguna atau saluran...</string>
+    <string name="send">Kirim</string>
+    <string name="settings">Pengaturan</string>
+    <string name="stories">Cerita</string>
+</resources>

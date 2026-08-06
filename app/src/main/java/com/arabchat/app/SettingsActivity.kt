@@ -18,6 +18,29 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+
+        findViewById<TextView?>(R.id.tvLanguage)?.setOnClickListener {
+            val langs = arrayOf(
+                "العربية" to "ar",
+                "English" to "en",
+                "Français" to "fr",
+                "Türkçe" to "tr",
+                "اردو" to "ur",
+                "فارسی" to "fa",
+                "Deutsch" to "de",
+                "Español" to "es",
+                "हिन्दी" to "hi",
+                "Indonesia" to "in"
+            )
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(getString(R.string.language))
+                .setItems(langs.map { it.first }.toTypedArray()) { _, which ->
+                    LocaleHelper.apply(this, langs[which].second)
+                    recreate()
+                }
+                .show()
+        }
+
         
         findViewById<TextView?>(R.id.tvAboutApp)?.setOnClickListener {
             androidx.appcompat.app.AlertDialog.Builder(this)
@@ -230,6 +253,11 @@ class SettingsActivity : AppCompatActivity() {
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
+    }
+
+
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(LocaleHelper.wrap(newBase))
     }
 
 }

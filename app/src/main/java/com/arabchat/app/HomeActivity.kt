@@ -289,4 +289,9 @@ class HomeStoryBarAdapter(
         holder.avatar.text = if (row.isAdd) "+" else row.name.take(1).ifEmpty { "?" }
         holder.itemView.setOnClickListener { onClick(row) }
     }
+
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(LocaleHelper.wrap(newBase))
+    }
+
 }
